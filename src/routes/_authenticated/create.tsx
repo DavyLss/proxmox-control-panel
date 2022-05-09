@@ -29,6 +29,14 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/create")({
   component: Create,
@@ -72,6 +80,46 @@ function Create() {
   const [password, setPassword] = useState("");
   const [bridge, setBridge] = useState("vmbr0");
 
+  // Expert mode (Proxmox VE 9.1.6)
+  const [expert, setExpert] = useState(false);
+
+  // Common expert
+  const [onboot, setOnboot] = useState(false);
+  const [startOnCreate, setStartOnCreate] = useState(false);
+  const [tags, setTags] = useState("");
+  const [description, setDescription] = useState("");
+
+  // QEMU expert
+  const [bios, setBios] = useState<"seabios" | "ovmf">("seabios");
+  const [machine, setMachine] = useState("");
+  const [cpuType, setCpuType] = useState("x86-64-v2-AES");
+  const [sockets, setSockets] = useState("1");
+  const [numa, setNuma] = useState(false);
+  const [balloon, setBalloon] = useState("");
+  const [agent, setAgent] = useState(true);
+  const [vga, setVga] = useState("std");
+  const [scsihw, setScsihw] = useState("virtio-scsi-single");
+  const [bootOrder, setBootOrder] = useState("order=scsi0;ide2;net0");
+  const [ostypeQ, setOstypeQ] = useState("l26");
+  const [vmArgs, setVmArgs] = useState("");
+  const [efiStorage, setEfiStorage] = useState("");
+  const [vlanTag, setVlanTag] = useState("");
+  const [netModel, setNetModel] = useState("virtio");
+
+  // LXC expert
+  const [unprivileged, setUnprivileged] = useState(true);
+  const [nesting, setNesting] = useState(true);
+  const [keyctl, setKeyctl] = useState(true);
+  const [fuse, setFuse] = useState(false);
+  const [mountFeat, setMountFeat] = useState("");
+  const [searchdomain, setSearchdomain] = useState("");
+  const [nameserver, setNameserver] = useState("");
+  const [sshKeys, setSshKeys] = useState("");
+  const [ipv4, setIpv4] = useState("dhcp");
+  const [gw4, setGw4] = useState("");
+  const [ipv6, setIpv6] = useState("");
+  const [swap, setSwap] = useState("512");
+
   useEffect(() => {
     if (vmidQ.data && !vmid) setVmid(String(vmidQ.data));
   }, [vmidQ.data, vmid]);
@@ -107,12 +155,32 @@ function Create() {
           name: name || `vm-${vmid}`,
           cores: Number(cores),
           memory: Number(memory),
-          net0: `virtio,bridge=${bridge}`,
-          scsihw: "virtio-scsi-single",
+          net0:
+            `${expert ? netModel : "virtio"},bridge=${bridge}` +
+            (expert && vlanTag ? `,tag=${vlanTag}` : ""),
+          scsihw: expert ? scsihw : "virtio-scsi-single",
           scsi0: `${storage}:${diskSize}`,
-          ostype: "l26",
+          ostype: expert ? ostypeQ : "l26",
         };
         if (iso) payload.ide2 = `${iso},media=cdrom`;
+        if (expert) {
+          payload.sockets = Number(sockets);
+          payload.bios = bios;
+          if (machine) payload.machine = machine;
+          payload.cpu = cpuType;
+          payload.numa = numa ? 1 : 0;
+          payload.agent = agent ? 1 : 0;
+          payload.vga = vga;
+          payload.boot = bootOrder;
+          payload.onboot = onboot ? 1 : 0;
+          payload.start = startOnCreate ? 1 : 0;
+          if (balloon) payload.balloon = Number(balloon);
+          if (tags) payload.tags = tags;
+          if (description) payload.description = description;
+          if (vmArgs) payload.args = vmArgs;
+          if (bios === "ovmf" && efiStorage)
+            payload.efidisk0 = `${efiStorage}:1,efitype=4m,pre-enrolled-keys=1`;
+        }
         return createQemu(t, node, payload);
       } else {
         if (!tmpl) throw new Error("Sélectionnez un template LXC");
@@ -123,10 +191,34 @@ function Create() {
           cores: Number(cores),
           memory: Number(memory),
           rootfs: `${storage}:${diskSize}`,
-          net0: `name=eth0,bridge=${bridge},ip=dhcp`,
+          net0:
+            `name=eth0,bridge=${bridge},ip=${expert ? ipv4 : "dhcp"}` +
+            (expert && gw4 ? `,gw=${gw4}` : "") +
+            (expert && ipv6 ? `,ip6=${ipv6}` : "") +
+            (expert && vlanTag ? `,tag=${vlanTag}` : ""),
           password: password || undefined,
-          unprivileged: 1,
+          unprivileged: expert ? (unprivileged ? 1 : 0) : 1,
         };
+        if (expert) {
+          const feats = [
+            nesting && "nesting=1",
+            keyctl && "keyctl=1",
+            fuse && "fuse=1",
+            mountFeat && `mount=${mountFeat}`,
+          ].filter(Boolean);
+          if (feats.length) payload.features = feats.join(",");
+          payload.swap = Number(swap);
+          payload.onboot = onboot ? 1 : 0;
+          payload.start = startOnCreate ? 1 : 0;
+          if (searchdomain) payload.searchdomain = searchdomain;
+          if (nameserver) payload.nameserver = nameserver;
+          if (sshKeys) payload["ssh-public-keys"] = sshKeys;
+          if (tags) payload.tags = tags;
+          if (description) payload.description = description;
+        } else {
+          // sane default for modern Debian/Ubuntu LXC
+          payload.features = "nesting=1,keyctl=1";
+        }
         return createLxc(t, node, payload);
       }
     },
@@ -259,6 +351,274 @@ function Create() {
                 </Field>
               </div>
             </TabsContent>
+
+            <Collapsible open={expert} onOpenChange={setExpert}>
+              <div className="flex items-center justify-between rounded-md border border-border/60 bg-muted/30 px-3 py-2">
+                <div>
+                  <div className="text-sm font-medium">Mode expert</div>
+                  <div className="text-xs text-muted-foreground">
+                    Paramètres avancés Proxmox VE 9.1.6
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch checked={expert} onCheckedChange={setExpert} />
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <ChevronDown
+                        className={
+                          "h-4 w-4 transition-transform " +
+                          (expert ? "rotate-180" : "")
+                        }
+                      />
+                    </Button>
+                  </CollapsibleTrigger>
+                </div>
+              </div>
+              <CollapsibleContent className="pt-4 space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Field label="Tags (séparés par ;)">
+                    <Input
+                      value={tags}
+                      onChange={(e) => setTags(e.target.value)}
+                      placeholder="prod;web"
+                    />
+                  </Field>
+                  <div className="flex items-end gap-6 pb-2">
+                    <label className="flex items-center gap-2 text-sm">
+                      <Switch checked={onboot} onCheckedChange={setOnboot} />
+                      Démarrer au boot
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                      <Switch
+                        checked={startOnCreate}
+                        onCheckedChange={setStartOnCreate}
+                      />
+                      Démarrer après création
+                    </label>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Field label="Description">
+                      <Textarea
+                        rows={2}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                      />
+                    </Field>
+                  </div>
+                  <Field label="VLAN tag (optionnel)">
+                    <Input
+                      value={vlanTag}
+                      onChange={(e) => setVlanTag(e.target.value)}
+                      placeholder="ex: 10"
+                    />
+                  </Field>
+                </div>
+
+                {type === "qemu" && (
+                  <div className="grid sm:grid-cols-2 gap-4 border-t border-border/60 pt-4">
+                    <Pick
+                      label="BIOS"
+                      value={bios}
+                      onChange={(v) => setBios(v as "seabios" | "ovmf")}
+                      options={[
+                        { value: "seabios", label: "SeaBIOS" },
+                        { value: "ovmf", label: "OVMF (UEFI)" },
+                      ]}
+                    />
+                    <Field label="Machine (ex: q35, pc-i440fx-9.0)">
+                      <Input
+                        value={machine}
+                        onChange={(e) => setMachine(e.target.value)}
+                        placeholder="q35"
+                      />
+                    </Field>
+                    <Field label="Type CPU">
+                      <Input
+                        value={cpuType}
+                        onChange={(e) => setCpuType(e.target.value)}
+                        placeholder="host, x86-64-v2-AES…"
+                      />
+                    </Field>
+                    <Field label="Sockets">
+                      <Input
+                        type="number"
+                        min={1}
+                        value={sockets}
+                        onChange={(e) => setSockets(e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Ballooning min (MiB, vide = off)">
+                      <Input
+                        value={balloon}
+                        onChange={(e) => setBalloon(e.target.value)}
+                        placeholder="0 = désactivé"
+                      />
+                    </Field>
+                    <Pick
+                      label="VGA"
+                      value={vga}
+                      onChange={setVga}
+                      options={[
+                        { value: "std", label: "std" },
+                        { value: "qxl", label: "qxl" },
+                        { value: "virtio", label: "virtio" },
+                        { value: "serial0", label: "serial0" },
+                        { value: "none", label: "none" },
+                      ]}
+                    />
+                    <Pick
+                      label="SCSI controller"
+                      value={scsihw}
+                      onChange={setScsihw}
+                      options={[
+                        { value: "virtio-scsi-single", label: "virtio-scsi-single" },
+                        { value: "virtio-scsi-pci", label: "virtio-scsi-pci" },
+                        { value: "lsi", label: "lsi" },
+                        { value: "megasas", label: "megasas" },
+                      ]}
+                    />
+                    <Pick
+                      label="Modèle réseau"
+                      value={netModel}
+                      onChange={setNetModel}
+                      options={[
+                        { value: "virtio", label: "virtio" },
+                        { value: "e1000", label: "e1000" },
+                        { value: "e1000e", label: "e1000e" },
+                        { value: "rtl8139", label: "rtl8139" },
+                        { value: "vmxnet3", label: "vmxnet3" },
+                      ]}
+                    />
+                    <Field label="Type d'OS">
+                      <Input
+                        value={ostypeQ}
+                        onChange={(e) => setOstypeQ(e.target.value)}
+                        placeholder="l26, win11, other…"
+                      />
+                    </Field>
+                    <Field label="Ordre de boot">
+                      <Input
+                        value={bootOrder}
+                        onChange={(e) => setBootOrder(e.target.value)}
+                      />
+                    </Field>
+                    {bios === "ovmf" && (
+                      <Pick
+                        label="Stockage EFI disk"
+                        value={efiStorage}
+                        onChange={setEfiStorage}
+                        options={(storagesQ.data ?? [])
+                          .filter((s) => s.content.includes("images"))
+                          .map((s) => ({ value: s.storage, label: s.storage }))}
+                      />
+                    )}
+                    <div className="flex items-end gap-6 pb-2">
+                      <label className="flex items-center gap-2 text-sm">
+                        <Switch checked={agent} onCheckedChange={setAgent} />
+                        QEMU Guest Agent
+                      </label>
+                      <label className="flex items-center gap-2 text-sm">
+                        <Switch checked={numa} onCheckedChange={setNuma} />
+                        NUMA
+                      </label>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Field label="Args bruts (kvm)">
+                        <Input
+                          value={vmArgs}
+                          onChange={(e) => setVmArgs(e.target.value)}
+                          placeholder="-cpu host,+aes …"
+                        />
+                      </Field>
+                    </div>
+                  </div>
+                )}
+
+                {type === "lxc" && (
+                  <div className="grid sm:grid-cols-2 gap-4 border-t border-border/60 pt-4">
+                    <Field label="Swap (MiB)">
+                      <Input
+                        type="number"
+                        min={0}
+                        value={swap}
+                        onChange={(e) => setSwap(e.target.value)}
+                      />
+                    </Field>
+                    <Field label="IPv4 (dhcp ou CIDR)">
+                      <Input
+                        value={ipv4}
+                        onChange={(e) => setIpv4(e.target.value)}
+                        placeholder="dhcp ou 10.0.0.10/24"
+                      />
+                    </Field>
+                    <Field label="Passerelle IPv4">
+                      <Input
+                        value={gw4}
+                        onChange={(e) => setGw4(e.target.value)}
+                        placeholder="10.0.0.1"
+                      />
+                    </Field>
+                    <Field label="IPv6 (dhcp/auto/CIDR)">
+                      <Input
+                        value={ipv6}
+                        onChange={(e) => setIpv6(e.target.value)}
+                        placeholder="auto"
+                      />
+                    </Field>
+                    <Field label="DNS searchdomain">
+                      <Input
+                        value={searchdomain}
+                        onChange={(e) => setSearchdomain(e.target.value)}
+                      />
+                    </Field>
+                    <Field label="DNS nameserver">
+                      <Input
+                        value={nameserver}
+                        onChange={(e) => setNameserver(e.target.value)}
+                        placeholder="1.1.1.1 8.8.8.8"
+                      />
+                    </Field>
+                    <Field label="Mount features (nfs;cifs)">
+                      <Input
+                        value={mountFeat}
+                        onChange={(e) => setMountFeat(e.target.value)}
+                      />
+                    </Field>
+                    <div className="flex flex-wrap items-end gap-6 pb-2">
+                      <label className="flex items-center gap-2 text-sm">
+                        <Switch
+                          checked={unprivileged}
+                          onCheckedChange={setUnprivileged}
+                        />
+                        Non privilégié
+                      </label>
+                      <label className="flex items-center gap-2 text-sm">
+                        <Switch checked={nesting} onCheckedChange={setNesting} />
+                        nesting
+                      </label>
+                      <label className="flex items-center gap-2 text-sm">
+                        <Switch checked={keyctl} onCheckedChange={setKeyctl} />
+                        keyctl
+                      </label>
+                      <label className="flex items-center gap-2 text-sm">
+                        <Switch checked={fuse} onCheckedChange={setFuse} />
+                        fuse
+                      </label>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Field label="Clés SSH publiques (une par ligne)">
+                        <Textarea
+                          rows={3}
+                          value={sshKeys}
+                          onChange={(e) => setSshKeys(e.target.value)}
+                          placeholder="ssh-ed25519 AAAA…"
+                        />
+                      </Field>
+                    </div>
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
 
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" onClick={() => nav({ to: "/guests" })}>
