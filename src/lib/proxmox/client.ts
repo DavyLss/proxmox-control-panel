@@ -5,6 +5,8 @@
  * under the same origin).
  */
 
+import { proxmoxApiProxy } from "./proxy.functions";
+
 export interface ProxmoxCredentials {
   baseUrl: string; // e.g. https://pve.local:8006
   username: string; // e.g. root
@@ -154,6 +156,16 @@ export async function api<T = unknown>(
   opts: RequestOpts = {},
 ): Promise<T> {
   const method = opts.method ?? "GET";
+
+  if (method === "POST" && /\/nodes\/[^/]+\/(qemu|lxc)\/\d+\/termproxy$/.test(path)) {
+    return proxmoxApiProxy({
+      data: {
+        ticket: t,
+        path,
+      },
+    }) as Promise<T>;
+  }
+
   const headers: Record<string, string> = {
     Authorization: `PVEAuthCookie=${t.ticket}`,
   };
