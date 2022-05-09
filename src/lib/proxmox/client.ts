@@ -351,16 +351,6 @@ export async function openTermProxy(
   t: ProxmoxTicket,
   g: { node: string; type: "qemu" | "lxc"; vmid: number },
 ) {
-  const path = g.type === "qemu" ? "termproxy" : "termproxy";
-  const data = await api<{ ticket: string; port: string | number; user: string }>(
-    t,
-    `/nodes/${g.node}/${g.type}/${g.vmid}/${path}`,
-    { method: "POST" },
-  );
-  const wsUrl =
-    t.baseUrl.replace(/^http/, "ws") +
-    `/api2/json/nodes/${g.node}/${g.type}/${g.vmid}/vncwebsocket?port=${data.port}&vncticket=${encodeURIComponent(
-      data.ticket,
-    )}`;
-  return { wsUrl, ticket: data.ticket };
+  const wsUrl = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/api/proxmox/console`;
+  return { wsUrl, connectPayload: { ticket: t, guest: g } };
 }
