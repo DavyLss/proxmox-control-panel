@@ -157,13 +157,11 @@ export async function api<T = unknown>(
 ): Promise<T> {
   const method = opts.method ?? "GET";
 
-  if (method !== "GET") {
+  if (method === "POST" && /\/nodes\/[^/]+\/(qemu|lxc)\/\d+\/termproxy$/.test(path)) {
     return proxmoxApiProxy({
       data: {
         ticket: t,
         path,
-        method,
-        body: opts.body,
       },
     }) as Promise<T>;
   }
