@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/proxmox/auth-context";
+import type { ProxmoxTfaChallenge } from "@/lib/proxmox/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,30 +27,58 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const { signIn, isAuthenticated } = useAuth();
+  const { signIn, completeTfa, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [baseUrl, setBaseUrl] = useState(
-    () => localStorage.getItem("pve.baseUrl") ?? "https://192.168.1.10:8006",
-  );
+  const [baseUrl, setBaseUrl] = useState("https://192.168.1.10:8006");
   const [username, setUsername] = useState("root");
   const [realm, setRealm] = useState("pam");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [tfa, setTfa] = useState<ProxmoxTfaChallenge | null>(null);
+  const [tfaCode, setTfaCode] = useState("");
+  const [tfaKind, setTfaKind] = useState<"totp" | "recovery">("totp");
 
-  if (isAuthenticated) {
-    navigate({ to: "/dashboard" });
-  }
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem("pve.baseUrl");
+    if (saved) setBaseUrl(saved);
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) navigate({ to: "/dashboard" });
+  }, [isAuthenticated, navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await signIn({ baseUrl, username, realm, password });
-      localStorage.setItem("pve.baseUrl", baseUrl);
+      const r = await signIn({ baseUrl, username, realm, password });
+      window.localStorage.setItem("pve.baseUrl", baseUrl);
+      if (r.tfa) {
+        setTfa(r.tfa);
+        setTfaKind(r.tfa.types.totp ? "totp" : "recovery");
+        toast.message("Authentification à deux facteurs requise");
+      } else {
+        toast.success("Connecté à Proxmox");
+        navigate({ to: "/dashboard" });
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Échec de connexion");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onSubmitTfa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tfa) return;
+    setLoading(true);
+    try {
+      await completeTfa(tfa, tfaCode.replace(/\s+/g, ""), tfaKind);
       toast.success("Connecté à Proxmox");
       navigate({ to: "/dashboard" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Échec de connexion");
+      toast.error(err instanceof Error ? err.message : "Code 2FA invalide");
     } finally {
       setLoading(false);
     }
@@ -66,10 +95,45 @@ function LoginPage() {
             Proxmox Console
           </CardTitle>
           <CardDescription>
-            Connectez-vous avec votre compte Proxmox VE
+            {tfa ? "Saisissez votre code à deux facteurs" : "Connectez-vous avec votre compte Proxmox VE"}
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {tfa ? (
+            <form onSubmit={onSubmitTfa} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label>Méthode</Label>
+                <Select value={tfaKind} onValueChange={(v) => setTfaKind(v as "totp" | "recovery")}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {tfa.types.totp && <SelectItem value="totp">TOTP (application)</SelectItem>}
+                    {tfa.types.recovery && <SelectItem value="recovery">Clé de récupération</SelectItem>}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="tfa">Code</Label>
+                <Input
+                  id="tfa"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  placeholder={tfaKind === "totp" ? "123456" : "xxxx-xxxx"}
+                  value={tfaCode}
+                  onChange={(e) => setTfaCode(e.target.value)}
+                  autoFocus
+                  required
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" className="flex-1" onClick={() => { setTfa(null); setTfaCode(""); }}>
+                  Retour
+                </Button>
+                <Button type="submit" className="flex-1" disabled={loading}>
+                  {loading ? "Vérification…" : "Valider"}
+                </Button>
+              </div>
+            </form>
+          ) : (
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="url">URL du serveur</Label>
@@ -118,6 +182,7 @@ function LoginPage() {
               {loading ? "Connexion…" : "Se connecter"}
             </Button>
           </form>
+          )}
           <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
             Les identifiants sont envoyés directement à votre serveur Proxmox. Le
             ticket d'authentification est conservé en session de votre navigateur.

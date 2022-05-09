@@ -1,14 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import type { ProxmoxCredentials, ProxmoxTicket } from "./client";
-import { isTicketValid, login as apiLogin } from "./client";
+import type { ProxmoxCredentials, ProxmoxTfaChallenge, ProxmoxTicket } from "./client";
+import { isTicketValid, login as apiLogin, loginTfa as apiLoginTfa } from "./client";
 
 const STORAGE_KEY = "pve.ticket.v1";
 
 interface AuthContextValue {
   ticket: ProxmoxTicket | null;
   isAuthenticated: boolean;
-  signIn: (c: ProxmoxCredentials) => Promise<void>;
+  signIn: (c: ProxmoxCredentials) => Promise<{ tfa?: ProxmoxTfaChallenge }>;
+  completeTfa: (c: ProxmoxTfaChallenge, code: string, kind?: "totp" | "recovery") => Promise<void>;
   signOut: () => void;
 }
 
@@ -30,10 +31,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (c: ProxmoxCredentials) => {
-    const t = await apiLogin(c);
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(t));
-    setTicket(t);
+    const result = await apiLogin(c);
+    if (result.kind === "tfa") return { tfa: result.challenge };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(result.ticket));
+    setTicket(result.ticket);
+    return {};
   }, []);
+
+  const completeTfa = useCallback(
+    async (c: ProxmoxTfaChallenge, code: string, kind: "totp" | "recovery" = "totp") => {
+      const t = await apiLoginTfa(c, code, kind);
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(t));
+      setTicket(t);
+    },
+    [],
+  );
 
   const signOut = useCallback(() => {
     sessionStorage.removeItem(STORAGE_KEY);
@@ -41,8 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ ticket, isAuthenticated: isTicketValid(ticket), signIn, signOut }),
-    [ticket, signIn, signOut],
+    () => ({ ticket, isAuthenticated: isTicketValid(ticket), signIn, completeTfa, signOut }),
+    [ticket, signIn, completeTfa, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
