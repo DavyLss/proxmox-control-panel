@@ -5,6 +5,11 @@ import { isTicketValid, login as apiLogin, loginTfa as apiLoginTfa } from "./cli
 
 const STORAGE_KEY = "pve.ticket.v1";
 
+function getSessionStorage() {
+  if (typeof window === "undefined") return null;
+  return window.sessionStorage;
+}
+
 interface AuthContextValue {
   ticket: ProxmoxTicket | null;
   isAuthenticated: boolean;
@@ -20,11 +25,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem(STORAGE_KEY);
+      const storage = getSessionStorage();
+      const raw = storage?.getItem(STORAGE_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw) as ProxmoxTicket;
       if (isTicketValid(parsed)) setTicket(parsed);
-      else sessionStorage.removeItem(STORAGE_KEY);
+      else storage?.removeItem(STORAGE_KEY);
     } catch {
       /* ignore */
     }
@@ -33,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(async (c: ProxmoxCredentials) => {
     const result = await apiLogin(c);
     if (result.kind === "tfa") return { tfa: result.challenge };
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(result.ticket));
+    getSessionStorage()?.setItem(STORAGE_KEY, JSON.stringify(result.ticket));
     setTicket(result.ticket);
     return {};
   }, []);
@@ -41,14 +47,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const completeTfa = useCallback(
     async (c: ProxmoxTfaChallenge, code: string, kind: "totp" | "recovery" = "totp") => {
       const t = await apiLoginTfa(c, code, kind);
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(t));
+      getSessionStorage()?.setItem(STORAGE_KEY, JSON.stringify(t));
       setTicket(t);
     },
     [],
   );
 
   const signOut = useCallback(() => {
-    sessionStorage.removeItem(STORAGE_KEY);
+    getSessionStorage()?.removeItem(STORAGE_KEY);
     setTicket(null);
   }, []);
 
