@@ -4,6 +4,8 @@ import { z } from "zod";
 type WorkerSocket = WebSocket & {
   accept: () => void;
 };
+type WorkerResponse = Response & { webSocket?: WorkerSocket };
+type WebSocketSendData = Parameters<WebSocket["send"]>[0];
 
 declare const WebSocketPair: {
   new (): { 0: WorkerSocket; 1: WorkerSocket };
@@ -58,7 +60,7 @@ function closeSocket(socket: WebSocket | undefined) {
 
 function forward(socket: WebSocket | undefined, data: MessageEvent["data"]) {
   if (socket?.readyState === WebSocket.OPEN) {
-    socket.send(data as string | ArrayBuffer | ArrayBufferView);
+    socket.send(data as WebSocketSendData);
   }
 }
 
@@ -108,7 +110,7 @@ export const Route = createFileRoute("/api/proxmox/console")({
             const termJson = (await termRes.json()) as {
               data: { ticket: string; port: string | number; user?: string };
             };
-            const wsRes = await fetch(
+            const wsRes = (await fetch(
               `${baseUrl.replace(/^http/, "ws")}/api2/json/nodes/${node}/${type}/${vmid}/vncwebsocket?port=${termJson.data.port}&vncticket=${encodeURIComponent(termJson.data.ticket)}`,
               {
                 headers: {
@@ -116,7 +118,7 @@ export const Route = createFileRoute("/api/proxmox/console")({
                   Cookie: `PVEAuthCookie=${input.ticket.ticket}`,
                 },
               },
-            );
+            )) as WorkerResponse;
 
             if (wsRes.status !== 101 || !wsRes.webSocket) {
               throw new Error(`Proxmox WebSocket → ${wsRes.status}`);
