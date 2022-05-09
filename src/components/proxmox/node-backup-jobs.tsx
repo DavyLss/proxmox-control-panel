@@ -381,3 +381,100 @@ function Field({
     </div>
   );
 }
+
+function VmidPicker({
+  value,
+  onChange,
+  guests,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  guests: Array<{ vmid: number; name?: string; type: "qemu" | "lxc"; status: string }>;
+}) {
+  const selected = new Set(
+    value
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+  );
+  const [search, setSearch] = useState("");
+  const filtered = guests
+    .filter((g) => {
+      const q = search.toLowerCase();
+      return (
+        !q ||
+        String(g.vmid).includes(q) ||
+        (g.name ?? "").toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => a.vmid - b.vmid);
+
+  function toggle(id: string) {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    onChange(Array.from(next).join(","));
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className="w-full justify-between font-normal"
+          type="button"
+        >
+          <span className="truncate text-left">
+            {selected.size === 0
+              ? "Sélectionner des VM/CT…"
+              : `${selected.size} sélectionné(s) — ${Array.from(selected).join(", ")}`}
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-60 shrink-0 ml-2" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[360px] p-0" align="start">
+        <div className="flex items-center gap-2 border-b px-2 py-1.5">
+          <Search className="h-3.5 w-3.5 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher par VMID ou nom…"
+            className="flex-1 bg-transparent text-sm outline-none"
+          />
+        </div>
+        <ScrollArea className="h-64">
+          {filtered.length === 0 && (
+            <div className="px-3 py-4 text-xs text-muted-foreground text-center">
+              Aucune VM/CT trouvée
+            </div>
+          )}
+          {filtered.map((g) => {
+            const id = String(g.vmid);
+            const checked = selected.has(id);
+            return (
+              <label
+                key={id}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-muted/50"
+              >
+                <Checkbox checked={checked} onCheckedChange={() => toggle(id)} />
+                <code className="text-xs w-12">{id}</code>
+                <span className="truncate flex-1">{g.name ?? "—"}</span>
+                <Badge variant="outline" className="text-[10px] uppercase">
+                  {g.type}
+                </Badge>
+              </label>
+            );
+          })}
+        </ScrollArea>
+        <div className="flex justify-between border-t p-2">
+          <Button size="sm" variant="ghost" onClick={() => onChange("")}>
+            Tout désélectionner
+          </Button>
+          <span className="text-xs text-muted-foreground self-center">
+            {selected.size} / {guests.length}
+          </span>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
