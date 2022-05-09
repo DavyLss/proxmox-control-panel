@@ -53,6 +53,7 @@ export async function login(c: ProxmoxCredentials): Promise<LoginResult> {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
+    credentials: "include",
   }).catch((e) => {
     throw new Error(
       `Impossible de joindre ${baseUrl}. Acceptez d'abord le certificat TLS dans votre navigateur (ouvrez l'URL directement) et vérifiez la configuration CORS de Proxmox. Détail: ${e instanceof Error ? e.message : String(e)}`,
@@ -127,6 +128,7 @@ export async function loginTfa(
       CSRFPreventionToken: c.CSRFPreventionToken,
     },
     body,
+    credentials: "include",
   });
   if (!res.ok) throw new Error(`Code 2FA invalide (${res.status}).`);
   const json = (await res.json()) as {
@@ -173,6 +175,7 @@ export async function api<T = unknown>(
     method,
     headers,
     body,
+    credentials: "include",
   });
 
   if (!res.ok) {
