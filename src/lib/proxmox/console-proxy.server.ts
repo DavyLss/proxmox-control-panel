@@ -7,8 +7,8 @@ const consoleQuerySchema = z.object({
   username: z.string(),
   ticket: z.string(),
   node: z.string().regex(/^[A-Za-z0-9._-]+$/),
-  type: z.enum(["qemu", "lxc"]),
-  vmid: z.coerce.number().int().positive(),
+  type: z.enum(["qemu", "lxc"]).optional(),
+  vmid: z.coerce.number().int().positive().optional(),
   port: z.coerce.number().int().positive(),
   vncticket: z.string(),
 });
@@ -33,8 +33,12 @@ export async function handleProxmoxConsoleRequest(request: Request): Promise<Res
     const url = new URL(request.url);
     const input = consoleQuerySchema.parse(Object.fromEntries(url.searchParams));
     const baseUrl = normalizeBaseUrl(input.baseUrl);
+    const upstreamPath =
+      input.type && input.vmid
+        ? `/api2/json/nodes/${input.node}/${input.type}/${input.vmid}/vncwebsocket`
+        : `/api2/json/nodes/${input.node}/vncwebsocket`;
     const upstream = (await fetch(
-      `${baseUrl}/api2/json/nodes/${input.node}/${input.type}/${input.vmid}/vncwebsocket?port=${input.port}&vncticket=${encodeURIComponent(input.vncticket)}`,
+      `${baseUrl}${upstreamPath}?port=${input.port}&vncticket=${encodeURIComponent(input.vncticket)}`,
       {
         headers: {
           Upgrade: "websocket",

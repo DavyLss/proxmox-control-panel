@@ -13,7 +13,9 @@ const proxmoxTicketSchema = z.object({
 
 const proxyInputSchema = z.object({
   ticket: proxmoxTicketSchema,
-  path: z.string().regex(/^\/nodes\/[A-Za-z0-9._-]+\/(qemu|lxc)\/\d+\/termproxy$/),
+  path: z.string().regex(
+    /^\/nodes\/[A-Za-z0-9._-]+(?:\/(qemu|lxc)\/\d+)?\/termproxy$/,
+  ),
   referer: z.string().url().optional(),
 });
 

@@ -157,11 +157,15 @@ export async function api<T = unknown>(
 ): Promise<T> {
   const method = opts.method ?? "GET";
 
-  if (method === "POST" && /\/nodes\/[^/]+\/(qemu|lxc)\/\d+\/termproxy$/.test(path)) {
-    const match = path.match(/^\/nodes\/([^/]+)\/(qemu|lxc)\/(\d+)\/termproxy$/);
-    const referer = match
-      ? `${t.baseUrl}/?console=${match[2] === "qemu" ? "kvm" : "lxc"}&xtermjs=1&vmid=${match[3]}&node=${encodeURIComponent(match[1])}&cmd=`
-      : undefined;
+  if (method === "POST" && /\/nodes\/[^/]+(?:\/(qemu|lxc)\/\d+)?\/termproxy$/.test(path)) {
+    const guestMatch = path.match(/^\/nodes\/([^/]+)\/(qemu|lxc)\/(\d+)\/termproxy$/);
+    const nodeMatch = path.match(/^\/nodes\/([^/]+)\/termproxy$/);
+    let referer: string | undefined;
+    if (guestMatch) {
+      referer = `${t.baseUrl}/?console=${guestMatch[2] === "qemu" ? "kvm" : "lxc"}&xtermjs=1&vmid=${guestMatch[3]}&node=${encodeURIComponent(guestMatch[1])}&cmd=`;
+    } else if (nodeMatch) {
+      referer = `${t.baseUrl}/?console=shell&xtermjs=1&node=${encodeURIComponent(nodeMatch[1])}`;
+    }
     return proxmoxApiProxy({
       data: {
         ticket: t,
@@ -177,8 +181,10 @@ export async function api<T = unknown>(
   // Browser JavaScript cannot set Cookie headers. Use Authorization instead.
 
   let body: BodyInit | undefined;
-  if (opts.body && method !== "GET") {
+  if (method !== "GET") {
     headers["CSRFPreventionToken"] = t.CSRFPreventionToken;
+  }
+  if (opts.body && method !== "GET") {
     headers["Content-Type"] = "application/x-www-form-urlencoded";
     const params = new URLSearchParams();
     for (const [k, v] of Object.entries(opts.body)) {
@@ -373,4 +379,201 @@ export async function openTermProxy(
   });
   const wsUrl = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/api/proxmox/console?${params.toString()}`;
   return { wsUrl, vncticket: data.ticket, user: data.user ?? t.username };
+}
+
+export async function openNodeTermProxy(t: ProxmoxTicket, node: string) {
+  const data = await api<{ ticket: string; port: string | number; user: string }>(
+    t,
+    `/nodes/${node}/termproxy`,
+    { method: "POST" },
+  );
+  const params = new URLSearchParams({
+    baseUrl: t.baseUrl,
+    username: data.user ?? t.username,
+    ticket: t.ticket,
+    node,
+    port: String(data.port),
+    vncticket: data.ticket,
+  });
+  const wsUrl = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/api/proxmox/console?${params.toString()}`;
+  return { wsUrl, vncticket: data.ticket, user: data.user ?? t.username };
+}
+
+/* ---------- Node helpers ---------- */
+
+export async function nodeStatus(t: ProxmoxTicket, node: string) {
+  return api<{
+    cpu?: number;
+    cpuinfo?: { cpus?: number; model?: string };
+    loadavg?: string[];
+    memory?: { total?: number; used?: number; free?: number };
+    rootfs?: { total?: number; used?: number };
+    swap?: { total?: number; used?: number };
+    uptime?: number;
+    kversion?: string;
+    pveversion?: string;
+  }>(t, `/nodes/${node}/status`);
+}
+
+export async function nodeRrd(
+  t: ProxmoxTicket,
+  node: string,
+  timeframe: "hour" | "day" | "week" = "hour",
+) {
+  return api<
+    Array<{
+      time: number;
+      cpu?: number;
+      memused?: number;
+      memtotal?: number;
+      netin?: number;
+      netout?: number;
+      loadavg?: number;
+      iowait?: number;
+      rootused?: number;
+      roottotal?: number;
+    }>
+  >(t, `/nodes/${node}/rrddata?timeframe=${timeframe}&cf=AVERAGE`);
+}
+
+export async function getPermissions(t: ProxmoxTicket) {
+  return api<Record<string, Record<string, number>>>(t, `/access/permissions`);
+}
+
+export function hasPermission(
+  perms: Record<string, Record<string, number>> | undefined,
+  path: string,
+  privilege: string,
+) {
+  if (!perms) return false;
+  const segments = path.split("/").filter(Boolean);
+  const candidates = ["/", ...segments.map((_, i) => "/" + segments.slice(0, i + 1).join("/"))];
+  for (const c of candidates) {
+    if (perms[c]?.[privilege]) return true;
+  }
+  return false;
+}
+
+/* ---------- QEMU config ---------- */
+
+export async function getQemuConfig(
+  t: ProxmoxTicket,
+  node: string,
+  vmid: number,
+) {
+  return api<Record<string, unknown>>(t, `/nodes/${node}/qemu/${vmid}/config`);
+}
+
+export async function setQemuConfig(
+  t: ProxmoxTicket,
+  node: string,
+  vmid: number,
+  payload: Record<string, unknown>,
+) {
+  return api(t, `/nodes/${node}/qemu/${vmid}/config`, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+/* ---------- Backups ---------- */
+
+export interface BackupVolume {
+  volid: string;
+  size?: number;
+  ctime?: number;
+  vmid?: number;
+  format?: string;
+  notes?: string;
+}
+
+export async function listBackups(
+  t: ProxmoxTicket,
+  node: string,
+  storage: string,
+  vmid?: number,
+) {
+  const q = vmid ? `&vmid=${vmid}` : "";
+  return api<BackupVolume[]>(
+    t,
+    `/nodes/${node}/storage/${storage}/content?content=backup${q}`,
+  );
+}
+
+export async function listBackupStorages(t: ProxmoxTicket, node: string) {
+  const all = await listStorage(t, node);
+  return all.filter((s) => s.content.includes("backup"));
+}
+
+export async function vzdumpNow(
+  t: ProxmoxTicket,
+  node: string,
+  payload: {
+    vmid: number;
+    storage: string;
+    mode?: "snapshot" | "suspend" | "stop";
+    compress?: "0" | "lzo" | "gzip" | "zstd";
+    notes?: string;
+    remove?: 0 | 1;
+  },
+) {
+  return api(t, `/nodes/${node}/vzdump`, {
+    method: "POST",
+    body: {
+      mode: "snapshot",
+      compress: "zstd",
+      ...payload,
+    },
+  });
+}
+
+export async function deleteBackup(
+  t: ProxmoxTicket,
+  node: string,
+  storage: string,
+  volid: string,
+) {
+  return api(
+    t,
+    `/nodes/${node}/storage/${storage}/content/${encodeURIComponent(volid)}`,
+    { method: "DELETE" },
+  );
+}
+
+export interface BackupJob {
+  id: string;
+  schedule?: string;
+  storage?: string;
+  vmid?: string;
+  all?: number;
+  enabled?: number;
+  mode?: string;
+  compress?: string;
+  "prune-backups"?: string;
+  comment?: string;
+  node?: string;
+  mailto?: string;
+}
+
+export async function listBackupJobs(t: ProxmoxTicket) {
+  return api<BackupJob[]>(t, `/cluster/backup`);
+}
+
+export async function createBackupJob(
+  t: ProxmoxTicket,
+  payload: Record<string, unknown>,
+) {
+  return api(t, `/cluster/backup`, { method: "POST", body: payload });
+}
+
+export async function updateBackupJob(
+  t: ProxmoxTicket,
+  id: string,
+  payload: Record<string, unknown>,
+) {
+  return api(t, `/cluster/backup/${id}`, { method: "PUT", body: payload });
+}
+
+export async function deleteBackupJob(t: ProxmoxTicket, id: string) {
+  return api(t, `/cluster/backup/${id}`, { method: "DELETE" });
 }

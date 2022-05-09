@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedNodesRouteImport } from './routes/_authenticated/nodes'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
+import { Route as AuthenticatedBackupsRouteImport } from './routes/_authenticated/backups'
+import { Route as AuthenticatedNodesIndexRouteImport } from './routes/_authenticated/nodes.index'
 import { Route as AuthenticatedGuestsIndexRouteImport } from './routes/_authenticated/guests.index'
+import { Route as AuthenticatedNodesNodeRouteImport } from './routes/_authenticated/nodes.$node'
 import { Route as AuthenticatedGuestsTypeNodeVmidRouteImport } from './routes/_authenticated/guests.$type.$node.$vmid'
 
 const LoginRoute = LoginRouteImport.update({
@@ -32,11 +34,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedNodesRoute = AuthenticatedNodesRouteImport.update({
-  id: '/nodes',
-  path: '/nodes',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -47,12 +44,27 @@ const AuthenticatedCreateRoute = AuthenticatedCreateRouteImport.update({
   path: '/create',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedBackupsRoute = AuthenticatedBackupsRouteImport.update({
+  id: '/backups',
+  path: '/backups',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedNodesIndexRoute = AuthenticatedNodesIndexRouteImport.update({
+  id: '/nodes/',
+  path: '/nodes/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedGuestsIndexRoute =
   AuthenticatedGuestsIndexRouteImport.update({
     id: '/guests/',
     path: '/guests/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedNodesNodeRoute = AuthenticatedNodesNodeRouteImport.update({
+  id: '/nodes/$node',
+  path: '/nodes/$node',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedGuestsTypeNodeVmidRoute =
   AuthenticatedGuestsTypeNodeVmidRouteImport.update({
     id: '/guests/$type/$node/$vmid',
@@ -63,19 +75,23 @@ const AuthenticatedGuestsTypeNodeVmidRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/backups': typeof AuthenticatedBackupsRoute
   '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/nodes': typeof AuthenticatedNodesRoute
+  '/nodes/$node': typeof AuthenticatedNodesNodeRoute
   '/guests/': typeof AuthenticatedGuestsIndexRoute
+  '/nodes/': typeof AuthenticatedNodesIndexRoute
   '/guests/$type/$node/$vmid': typeof AuthenticatedGuestsTypeNodeVmidRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/backups': typeof AuthenticatedBackupsRoute
   '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/nodes': typeof AuthenticatedNodesRoute
+  '/nodes/$node': typeof AuthenticatedNodesNodeRoute
   '/guests': typeof AuthenticatedGuestsIndexRoute
+  '/nodes': typeof AuthenticatedNodesIndexRoute
   '/guests/$type/$node/$vmid': typeof AuthenticatedGuestsTypeNodeVmidRoute
 }
 export interface FileRoutesById {
@@ -83,10 +99,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/backups': typeof AuthenticatedBackupsRoute
   '/_authenticated/create': typeof AuthenticatedCreateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/nodes': typeof AuthenticatedNodesRoute
+  '/_authenticated/nodes/$node': typeof AuthenticatedNodesNodeRoute
   '/_authenticated/guests/': typeof AuthenticatedGuestsIndexRoute
+  '/_authenticated/nodes/': typeof AuthenticatedNodesIndexRoute
   '/_authenticated/guests/$type/$node/$vmid': typeof AuthenticatedGuestsTypeNodeVmidRoute
 }
 export interface FileRouteTypes {
@@ -94,29 +112,35 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/backups'
     | '/create'
     | '/dashboard'
-    | '/nodes'
+    | '/nodes/$node'
     | '/guests/'
+    | '/nodes/'
     | '/guests/$type/$node/$vmid'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
+    | '/backups'
     | '/create'
     | '/dashboard'
-    | '/nodes'
+    | '/nodes/$node'
     | '/guests'
+    | '/nodes'
     | '/guests/$type/$node/$vmid'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/login'
+    | '/_authenticated/backups'
     | '/_authenticated/create'
     | '/_authenticated/dashboard'
-    | '/_authenticated/nodes'
+    | '/_authenticated/nodes/$node'
     | '/_authenticated/guests/'
+    | '/_authenticated/nodes/'
     | '/_authenticated/guests/$type/$node/$vmid'
   fileRoutesById: FileRoutesById
 }
@@ -149,13 +173,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/nodes': {
-      id: '/_authenticated/nodes'
-      path: '/nodes'
-      fullPath: '/nodes'
-      preLoaderRoute: typeof AuthenticatedNodesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -170,11 +187,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreateRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/backups': {
+      id: '/_authenticated/backups'
+      path: '/backups'
+      fullPath: '/backups'
+      preLoaderRoute: typeof AuthenticatedBackupsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/nodes/': {
+      id: '/_authenticated/nodes/'
+      path: '/nodes'
+      fullPath: '/nodes/'
+      preLoaderRoute: typeof AuthenticatedNodesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/guests/': {
       id: '/_authenticated/guests/'
       path: '/guests'
       fullPath: '/guests/'
       preLoaderRoute: typeof AuthenticatedGuestsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/nodes/$node': {
+      id: '/_authenticated/nodes/$node'
+      path: '/nodes/$node'
+      fullPath: '/nodes/$node'
+      preLoaderRoute: typeof AuthenticatedNodesNodeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/guests/$type/$node/$vmid': {
@@ -188,18 +226,22 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedBackupsRoute: typeof AuthenticatedBackupsRoute
   AuthenticatedCreateRoute: typeof AuthenticatedCreateRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedNodesRoute: typeof AuthenticatedNodesRoute
+  AuthenticatedNodesNodeRoute: typeof AuthenticatedNodesNodeRoute
   AuthenticatedGuestsIndexRoute: typeof AuthenticatedGuestsIndexRoute
+  AuthenticatedNodesIndexRoute: typeof AuthenticatedNodesIndexRoute
   AuthenticatedGuestsTypeNodeVmidRoute: typeof AuthenticatedGuestsTypeNodeVmidRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedBackupsRoute: AuthenticatedBackupsRoute,
   AuthenticatedCreateRoute: AuthenticatedCreateRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedNodesRoute: AuthenticatedNodesRoute,
+  AuthenticatedNodesNodeRoute: AuthenticatedNodesNodeRoute,
   AuthenticatedGuestsIndexRoute: AuthenticatedGuestsIndexRoute,
+  AuthenticatedNodesIndexRoute: AuthenticatedNodesIndexRoute,
   AuthenticatedGuestsTypeNodeVmidRoute: AuthenticatedGuestsTypeNodeVmidRoute,
 }
 

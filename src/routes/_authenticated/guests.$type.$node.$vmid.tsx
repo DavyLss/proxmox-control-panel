@@ -1,7 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/proxmox/auth-context";
-import { guestAction, guestStatus } from "@/lib/proxmox/client";
+import {
+  getQemuConfig,
+  guestAction,
+  guestStatus,
+  setQemuConfig,
+} from "@/lib/proxmox/client";
 import {
   Tabs,
   TabsContent,
@@ -9,17 +14,21 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Terminal } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, Play, Power, RotateCcw, Square } from "lucide-react";
 import { ConsoleTerminal } from "@/components/proxmox/console-terminal";
 import { RrdCharts } from "@/components/proxmox/rrd-charts";
+import { GuestBackups } from "@/components/proxmox/guest-backups";
 import { bytes, pct, uptime } from "@/lib/proxmox/format";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { z } from "zod";
 
 const search = z.object({
-  tab: z.enum(["overview", "monitoring", "console"]).default("overview"),
+  tab: z
+    .enum(["overview", "monitoring", "console", "backups"])
+    .default("overview"),
 });
 
 export const Route = createFileRoute("/_authenticated/guests/$type/$node/$vmid")({
@@ -49,6 +58,22 @@ function GuestDetail() {
       toast.success(`${a} envoyé`);
       qc.invalidateQueries({ queryKey: ["status", node, type, vmid] });
       qc.invalidateQueries({ queryKey: ["guests"] });
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const configQ = useQuery({
+    queryKey: ["qemu-config", node, vmid],
+    queryFn: () => getQemuConfig(t, node, Number(vmid)),
+    enabled: type === "qemu",
+  });
+  const hasSerial = !!(configQ.data && (configQ.data as Record<string, unknown>).serial0);
+
+  const enableSerial = useMutation({
+    mutationFn: () => setQemuConfig(t, node, Number(vmid), { serial0: "socket" }),
+    onSuccess: () => {
+      toast.success("Port série activé. Redémarrez la VM pour l'appliquer.");
+      qc.invalidateQueries({ queryKey: ["qemu-config", node, vmid] });
     },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -127,7 +152,9 @@ function GuestDetail() {
           nav({
             to: "/guests/$type/$node/$vmid",
             params: { type, node, vmid },
-            search: { tab: v as "overview" | "monitoring" | "console" },
+            search: {
+              tab: v as "overview" | "monitoring" | "console" | "backups",
+            },
           })
         }
       >
@@ -135,6 +162,7 @@ function GuestDetail() {
           <TabsTrigger value="overview">Vue</TabsTrigger>
           <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
           <TabsTrigger value="console">Console</TabsTrigger>
+          <TabsTrigger value="backups">Sauvegardes</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
@@ -156,6 +184,27 @@ function GuestDetail() {
         </TabsContent>
 
         <TabsContent value="console" className="mt-4">
+          {type === "qemu" && configQ.data && !hasSerial && (
+            <Card className="mb-3">
+              <CardContent className="p-4 flex items-center justify-between gap-3">
+                <div className="text-sm">
+                  <div className="font-medium">Pas de port série configuré</div>
+                  <div className="text-muted-foreground text-xs">
+                    xterm.js requiert <code>serial0: socket</code>. Ajoutez-le
+                    puis redémarrez la VM.
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => enableSerial.mutate()}
+                  disabled={enableSerial.isPending}
+                >
+                  <Terminal className="h-4 w-4 mr-1.5" />
+                  Activer la console série
+                </Button>
+              </CardContent>
+            </Card>
+          )}
           {running ? (
             <ConsoleTerminal ticket={t} guest={guest} />
           ) : (
@@ -165,6 +214,10 @@ function GuestDetail() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="backups" className="mt-4">
+          <GuestBackups ticket={t} guest={guest} />
         </TabsContent>
       </Tabs>
     </div>
