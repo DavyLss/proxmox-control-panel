@@ -1,4 +1,5 @@
-import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { useAuth } from "@/lib/proxmox/auth-context";
@@ -13,9 +14,18 @@ function AuthLayout() {
   const { isAuthenticated, signOut, ticket } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate({ to: "/login", replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
   if (!isAuthenticated) {
-    // client-side redirect (auth lives in sessionStorage, not router context)
-    throw redirect({ to: "/login" });
+    return (
+      <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">
+        Redirection vers la connexion…
+      </div>
+    );
   }
 
   return (
