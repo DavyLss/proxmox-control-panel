@@ -53,7 +53,6 @@ export async function login(c: ProxmoxCredentials): Promise<LoginResult> {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
-    credentials: "include",
   }).catch((e) => {
     throw new Error(
       `Impossible de joindre ${baseUrl}. Acceptez d'abord le certificat TLS dans votre navigateur (ouvrez l'URL directement) et vérifiez la configuration CORS de Proxmox. Détail: ${e instanceof Error ? e.message : String(e)}`,
@@ -128,7 +127,6 @@ export async function loginTfa(
       CSRFPreventionToken: c.CSRFPreventionToken,
     },
     body,
-    credentials: "include",
   });
   if (!res.ok) throw new Error(`Code 2FA invalide (${res.status}).`);
   const json = (await res.json()) as {
@@ -155,11 +153,9 @@ export async function api<T = unknown>(
 ): Promise<T> {
   const method = opts.method ?? "GET";
   const headers: Record<string, string> = {
-    Cookie: `PVEAuthCookie=${t.ticket}`,
+    Authorization: `PVEAPIToken=${t.ticket}`,
   };
-  // Most browsers won't send the cookie cross-origin without proper config;
-  // Proxmox also accepts the ticket via Authorization header for v8+.
-  headers["Authorization"] = `PVEAuthCookie=${t.ticket}`;
+  // Browser JavaScript cannot set Cookie headers. Use Authorization instead.
 
   let body: BodyInit | undefined;
   if (opts.body && method !== "GET") {
@@ -177,7 +173,6 @@ export async function api<T = unknown>(
     method,
     headers,
     body,
-    credentials: "include",
   });
 
   if (!res.ok) {
