@@ -1,13 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { ProxmoxCredentials, ProxmoxTfaChallenge, ProxmoxTicket } from "./client";
-import { isTicketValid, login as apiLogin, loginTfa as apiLoginTfa } from "./client";
+import { isTicketValid, login as apiLogin, loginTfa as apiLoginTfa, refreshTicket } from "./client";
 
 const STORAGE_KEY = "pve.ticket.v1";
+const REFRESH_INTERVAL_MS = 1000 * 60 * 60; // renew every hour (TTL ~2h)
 
-function getSessionStorage() {
+function getStorage() {
   if (typeof window === "undefined") return null;
-  return window.sessionStorage;
+  return window.localStorage;
 }
 
 interface AuthContextValue {
@@ -25,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const storage = getSessionStorage();
+      const storage = getStorage();
       const raw = storage?.getItem(STORAGE_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw) as ProxmoxTicket;
@@ -36,10 +37,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Auto-renew the ticket periodically so a refresh / long session never
+  // logs the user out unexpectedly.
+  useEffect(() => {
+    if (!ticket) return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const fresh = await refreshTicket(ticket);
+        if (cancelled) return;
+        getStorage()?.setItem(STORAGE_KEY, JSON.stringify(fresh));
+        setTicket(fresh);
+      } catch {
+        /* keep current ticket; next call will surface the error */
+      }
+    };
+    const id = window.setInterval(tick, REFRESH_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [ticket]);
+
   const signIn = useCallback(async (c: ProxmoxCredentials) => {
     const result = await apiLogin(c);
     if (result.kind === "tfa") return { tfa: result.challenge };
-    getSessionStorage()?.setItem(STORAGE_KEY, JSON.stringify(result.ticket));
+    getStorage()?.setItem(STORAGE_KEY, JSON.stringify(result.ticket));
     setTicket(result.ticket);
     return {};
   }, []);
@@ -47,14 +70,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const completeTfa = useCallback(
     async (c: ProxmoxTfaChallenge, code: string, kind: "totp" | "recovery" = "totp") => {
       const t = await apiLoginTfa(c, code, kind);
-      getSessionStorage()?.setItem(STORAGE_KEY, JSON.stringify(t));
+      getStorage()?.setItem(STORAGE_KEY, JSON.stringify(t));
       setTicket(t);
     },
     [],
   );
 
   const signOut = useCallback(() => {
-    getSessionStorage()?.removeItem(STORAGE_KEY);
+    getStorage()?.removeItem(STORAGE_KEY);
     setTicket(null);
   }, []);
 
