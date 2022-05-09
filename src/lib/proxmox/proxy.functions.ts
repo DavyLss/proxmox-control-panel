@@ -13,9 +13,7 @@ const proxmoxTicketSchema = z.object({
 
 const proxyInputSchema = z.object({
   ticket: proxmoxTicketSchema,
-  path: z.string().startsWith("/"),
-  method: z.enum(["POST", "PUT", "DELETE"]),
-  body: z.record(z.unknown()).optional(),
+  path: z.string().regex(/^\/nodes\/[A-Za-z0-9._-]+\/(qemu|lxc)\/\d+\/termproxy$/),
 });
 
 export const proxmoxApiProxy = createServerFn({ method: "POST" })
@@ -38,14 +36,14 @@ export const proxmoxApiProxy = createServerFn({ method: "POST" })
     }
 
     const res = await fetch(`${data.ticket.baseUrl}/api2/json${data.path}`, {
-      method: data.method,
+      method: "POST",
       headers,
       body,
     });
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      throw new Error(`Proxmox API ${data.method} ${data.path} → ${res.status} ${text}`);
+      throw new Error(`Proxmox API POST ${data.path} → ${res.status} ${text}`);
     }
 
     const json = (await res.json()) as { data: ProxmoxProxyData };
