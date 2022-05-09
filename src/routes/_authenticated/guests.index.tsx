@@ -25,7 +25,7 @@ import {
 import { bytes, pct, uptime } from "@/lib/proxmox/format";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/guests")({
+export const Route = createFileRoute("/_authenticated/guests/")({
   component: Guests,
 });
 
