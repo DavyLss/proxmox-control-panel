@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createBackupJob,
   deleteBackupJob,
+  listAllGuests,
   listBackupJobs,
   listBackupStorages,
   updateBackupJob,
@@ -29,7 +30,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Plus, Trash2, Pencil, ChevronDown, Search } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -45,6 +53,14 @@ interface JobForm {
   comment: string;
   mailto: string;
   pruneBackups: string;
+}
+
+function pruneToString(p: BackupJob["prune-backups"]): string {
+  if (!p) return "";
+  if (typeof p === "string") return p;
+  return Object.entries(p)
+    .map(([k, v]) => `${k}=${v}`)
+    .join(",");
 }
 
 const empty = (node: string): JobForm => ({
@@ -78,6 +94,11 @@ export function NodeBackupJobs({
     queryKey: ["backup-storages", node],
     queryFn: () => listBackupStorages(t, node),
   });
+  const guestsQ = useQuery({
+    queryKey: ["all-guests"],
+    queryFn: () => listAllGuests(t),
+    staleTime: 30_000,
+  });
 
   const jobs = (jobsQ.data ?? []).filter((j) => !j.node || j.node === node);
 
@@ -100,7 +121,7 @@ export function NodeBackupJobs({
       compress: j.compress ?? "zstd",
       comment: j.comment ?? "",
       mailto: j.mailto ?? "",
-      pruneBackups: j["prune-backups"] ?? "",
+      pruneBackups: pruneToString(j["prune-backups"]),
     });
     setOpen(true);
   }
@@ -119,7 +140,12 @@ export function NodeBackupJobs({
         "prune-backups": form.pruneBackups || undefined,
       };
       if (form.all) payload.all = 1;
-      else payload.vmid = form.vmid;
+      else
+        payload.vmid = form.vmid
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join(",");
       if (form.id) return updateBackupJob(t, form.id, payload);
       return createBackupJob(t, payload);
     },
@@ -242,13 +268,13 @@ export function NodeBackupJobs({
                 </label>
               </div>
               {!form.all && (
-                <Field label="VMID(s) (séparés par virgule)">
-                  <Input
+                <Field label="VM/CT cibles">
+                  <VmidPicker
                     value={form.vmid}
-                    onChange={(e) =>
-                      setForm({ ...form, vmid: e.target.value })
-                    }
-                    placeholder="100,101,200"
+                    onChange={(v) => setForm({ ...form, vmid: v })}
+                    guests={(guestsQ.data ?? []).filter(
+                      (g) => g.node === node && !g.template,
+                    )}
                   />
                 </Field>
               )}
