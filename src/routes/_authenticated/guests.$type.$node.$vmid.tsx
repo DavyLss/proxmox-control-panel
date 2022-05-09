@@ -19,13 +19,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, Play, Power, RotateCcw, Square } from "lucide-react";
 import { ConsoleTerminal } from "@/components/proxmox/console-terminal";
 import { RrdCharts } from "@/components/proxmox/rrd-charts";
+import { GuestBackups } from "@/components/proxmox/guest-backups";
 import { bytes, pct, uptime } from "@/lib/proxmox/format";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { z } from "zod";
 
 const search = z.object({
-  tab: z.enum(["overview", "monitoring", "console"]).default("overview"),
+  tab: z
+    .enum(["overview", "monitoring", "console", "backups"])
+    .default("overview"),
 });
 
 export const Route = createFileRoute("/_authenticated/guests/$type/$node/$vmid")({
@@ -149,7 +152,9 @@ function GuestDetail() {
           nav({
             to: "/guests/$type/$node/$vmid",
             params: { type, node, vmid },
-            search: { tab: v as "overview" | "monitoring" | "console" },
+            search: {
+              tab: v as "overview" | "monitoring" | "console" | "backups",
+            },
           })
         }
       >
@@ -157,6 +162,7 @@ function GuestDetail() {
           <TabsTrigger value="overview">Vue</TabsTrigger>
           <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
           <TabsTrigger value="console">Console</TabsTrigger>
+          <TabsTrigger value="backups">Sauvegardes</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
@@ -208,6 +214,10 @@ function GuestDetail() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="backups" className="mt-4">
+          <GuestBackups ticket={t} guest={guest} />
         </TabsContent>
       </Tabs>
     </div>
