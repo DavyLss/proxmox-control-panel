@@ -79,6 +79,7 @@ function Create() {
   const [tmpl, setTmpl] = useState<string>("");
   const [password, setPassword] = useState("");
   const [bridge, setBridge] = useState("vmbr0");
+  const [serialEnabled, setSerialEnabled] = useState(true);
 
   // Expert mode (Proxmox VE 9.1.6)
   const [expert, setExpert] = useState(false);
@@ -162,6 +163,7 @@ function Create() {
           scsi0: `${storage}:${diskSize}`,
           ostype: expert ? ostypeQ : "l26",
         };
+        if (serialEnabled) payload.serial0 = "socket";
         if (iso) payload.ide2 = `${iso},media=cdrom`;
         if (expert) {
           payload.sockets = Number(sockets);
