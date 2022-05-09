@@ -14,6 +14,7 @@ const proxmoxTicketSchema = z.object({
 const proxyInputSchema = z.object({
   ticket: proxmoxTicketSchema,
   path: z.string().regex(/^\/nodes\/[A-Za-z0-9._-]+\/(qemu|lxc)\/\d+\/termproxy$/),
+  referer: z.string().url().optional(),
 });
 
 export const proxmoxApiProxy = createServerFn({ method: "POST" })
@@ -24,6 +25,7 @@ export const proxmoxApiProxy = createServerFn({ method: "POST" })
       CSRFPreventionToken: data.ticket.CSRFPreventionToken,
       "Content-Type": "application/x-www-form-urlencoded",
     };
+    if (data.referer) headers.Referer = data.referer;
 
     const res = await fetch(`${data.ticket.baseUrl}/api2/json${data.path}`, {
       method: "POST",
