@@ -46,7 +46,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     [],
   );
-  }, []);
 
   const signOut = useCallback(() => {
     sessionStorage.removeItem(STORAGE_KEY);
