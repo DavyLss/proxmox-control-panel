@@ -94,9 +94,13 @@ export const Route = createFileRoute("/api/proxmox/console")({
             );
             const baseUrl = normalizeBaseUrl(input.ticket.baseUrl);
             const { node, type, vmid } = input.guest;
+            const consoleKind = type === "qemu" ? "kvm" : "lxc";
+            const referer = `${baseUrl}/?console=${consoleKind}&xtermjs=1&vmid=${vmid}&node=${encodeURIComponent(node)}&cmd=`;
             const headers = {
               Cookie: `PVEAuthCookie=${input.ticket.ticket}`,
               CSRFPreventionToken: input.ticket.CSRFPreventionToken,
+              Referer: referer,
+              "Content-Type": "application/x-www-form-urlencoded",
             };
 
             const termRes = await fetch(`${baseUrl}/api2/json/nodes/${node}/${type}/${vmid}/termproxy`, {
