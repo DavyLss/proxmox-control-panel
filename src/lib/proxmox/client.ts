@@ -181,8 +181,10 @@ export async function api<T = unknown>(
   // Browser JavaScript cannot set Cookie headers. Use Authorization instead.
 
   let body: BodyInit | undefined;
-  if (opts.body && method !== "GET") {
+  if (method !== "GET") {
     headers["CSRFPreventionToken"] = t.CSRFPreventionToken;
+  }
+  if (opts.body && method !== "GET") {
     headers["Content-Type"] = "application/x-www-form-urlencoded";
     const params = new URLSearchParams();
     for (const [k, v] of Object.entries(opts.body)) {
