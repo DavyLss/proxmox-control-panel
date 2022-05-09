@@ -25,20 +25,9 @@ export const proxmoxApiProxy = createServerFn({ method: "POST" })
       "Content-Type": "application/x-www-form-urlencoded",
     };
 
-    let body: BodyInit | undefined;
-    if (data.body) {
-      const params = new URLSearchParams();
-      for (const [key, value] of Object.entries(data.body)) {
-        if (value === undefined || value === null) continue;
-        params.append(key, String(value));
-      }
-      body = params;
-    }
-
     const res = await fetch(`${data.ticket.baseUrl}/api2/json${data.path}`, {
       method: "POST",
       headers,
-      body,
     });
 
     if (!res.ok) {
