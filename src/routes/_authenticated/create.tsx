@@ -322,6 +322,20 @@ function Create() {
                   }))}
                 />
               </div>
+              <label className="flex items-start gap-3 rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-sm cursor-pointer">
+                <Switch
+                  checked={serialEnabled}
+                  onCheckedChange={setSerialEnabled}
+                  className="mt-0.5"
+                />
+                <span>
+                  <span className="font-medium">Console série (xterm.js)</span>
+                  <span className="block text-xs text-muted-foreground">
+                    Ajoute <code>serial0: socket</code> à la VM pour activer la
+                    console web sans VNC.
+                  </span>
+                </span>
+              </label>
             </TabsContent>
 
             <TabsContent value="lxc" className="space-y-4 m-0">
