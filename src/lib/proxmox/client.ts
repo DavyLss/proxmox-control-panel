@@ -577,7 +577,7 @@ export interface BackupJob {
   enabled?: number;
   mode?: string;
   compress?: string;
-  "prune-backups"?: string;
+  "prune-backups"?: string | Record<string, string | number>;
   comment?: string;
   node?: string;
   mailto?: string;
