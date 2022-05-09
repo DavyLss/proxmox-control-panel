@@ -22,7 +22,7 @@ export function ConsoleTerminal({
 
     (async () => {
       try {
-        const { wsUrl, ticket: vncticket } = await openTermProxy(ticket, guest);
+        const { wsUrl, connectPayload } = await openTermProxy(ticket, guest);
         if (cancelled) return;
 
         term = new Terminal({
@@ -44,8 +44,7 @@ export function ConsoleTerminal({
         ws.binaryType = "arraybuffer";
 
         ws.onopen = () => {
-          // Proxmox auth handshake: send "user:ticket\n"
-          ws!.send(`${ticket.username}:${vncticket}\n`);
+          ws!.send(JSON.stringify(connectPayload));
           term!.writeln("\x1b[32mConnecté à la console.\x1b[0m\r\n");
         };
         ws.onmessage = (ev) => {
