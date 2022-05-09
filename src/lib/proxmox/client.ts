@@ -158,10 +158,15 @@ export async function api<T = unknown>(
   const method = opts.method ?? "GET";
 
   if (method === "POST" && /\/nodes\/[^/]+\/(qemu|lxc)\/\d+\/termproxy$/.test(path)) {
+    const match = path.match(/^\/nodes\/([^/]+)\/(qemu|lxc)\/(\d+)\/termproxy$/);
+    const referer = match
+      ? `${t.baseUrl}/?console=${match[2] === "qemu" ? "kvm" : "lxc"}&xtermjs=1&vmid=${match[3]}&node=${encodeURIComponent(match[1])}&cmd=`
+      : undefined;
     return proxmoxApiProxy({
       data: {
         ticket: t,
         path,
+        referer,
       },
     }) as Promise<T>;
   }
