@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { NodeBackupJobs } from "@/components/proxmox/node-backup-jobs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -41,7 +41,9 @@ function Backups() {
   });
 
   const [node, setNode] = useState<string>("");
-  if (!node && nodesQ.data?.length) setNode(nodesQ.data[0].node);
+  useEffect(() => {
+    if (!node && nodesQ.data?.length) setNode(nodesQ.data[0].node);
+  }, [nodesQ.data, node]);
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteBackupJob(t, id),
