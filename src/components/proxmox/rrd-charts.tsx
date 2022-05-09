@@ -29,16 +29,35 @@ export function RrdCharts({
     refetchInterval: 30_000,
   });
 
-  const series = (data ?? []).map((p) => ({
-    t: new Date(p.time * 1000).toLocaleTimeString([], {
+  const series = (data ?? []).map((p) => {
+    const d = new Date(p.time * 1000);
+    const label =
+      tf === "hour"
+        ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        : tf === "day"
+          ? d.toLocaleString([], {
+              day: "2-digit",
+              month: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : d.toLocaleDateString([], { day: "2-digit", month: "2-digit" });
+    const tooltipLabel = d.toLocaleString([], {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    }),
+    });
+    return {
+      t: label,
+      tooltipLabel,
     cpu: ((p.cpu ?? 0) * 100).toFixed(2),
     mem: ((p.mem ?? 0) / 1024 / 1024).toFixed(0),
     netin: ((p.netin ?? 0) / 1024).toFixed(0),
     netout: ((p.netout ?? 0) / 1024).toFixed(0),
-  }));
+    };
+  });
 
   return (
     <div className="space-y-4">
@@ -99,6 +118,10 @@ function ChartCard({
                 borderRadius: 6,
                 fontSize: 12,
               }}
+              labelFormatter={(_, payload) =>
+                (payload?.[0]?.payload as { tooltipLabel?: string } | undefined)
+                  ?.tooltipLabel ?? String(_)
+              }
             />
             <Area
               type="monotone"
