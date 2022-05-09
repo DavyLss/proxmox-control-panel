@@ -153,7 +153,7 @@ export async function api<T = unknown>(
 ): Promise<T> {
   const method = opts.method ?? "GET";
   const headers: Record<string, string> = {
-    Authorization: `PVEAPIToken=${t.ticket}`,
+    Authorization: `PVEAuthCookie=${t.ticket}`,
   };
   // Browser JavaScript cannot set Cookie headers. Use Authorization instead.
 
