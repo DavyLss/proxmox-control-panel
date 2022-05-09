@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+type ProxmoxProxyData = Record<string, string | number | boolean | null>;
+
 const proxmoxTicketSchema = z.object({
   baseUrl: z.string().url(),
   username: z.string(),
@@ -46,6 +48,6 @@ export const proxmoxApiProxy = createServerFn({ method: "POST" })
       throw new Error(`Proxmox API ${data.method} ${data.path} → ${res.status} ${text}`);
     }
 
-    const json = (await res.json()) as { data: unknown };
+    const json = (await res.json()) as { data: ProxmoxProxyData };
     return json.data;
   });
