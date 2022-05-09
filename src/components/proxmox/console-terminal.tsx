@@ -2,14 +2,20 @@ import { useEffect, useRef } from "react";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
-import { openTermProxy, type ProxmoxTicket } from "@/lib/proxmox/client";
+import {
+  openNodeTermProxy,
+  openTermProxy,
+  type ProxmoxTicket,
+} from "@/lib/proxmox/client";
 
 export function ConsoleTerminal({
   ticket,
   guest,
+  nodeShell,
 }: {
   ticket: ProxmoxTicket;
-  guest: { node: string; type: "qemu" | "lxc"; vmid: number };
+  guest?: { node: string; type: "qemu" | "lxc"; vmid: number };
+  nodeShell?: { node: string };
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -22,7 +28,9 @@ export function ConsoleTerminal({
 
     (async () => {
       try {
-        const { wsUrl, vncticket, user } = await openTermProxy(ticket, guest);
+        const { wsUrl, vncticket, user } = nodeShell
+          ? await openNodeTermProxy(ticket, nodeShell.node)
+          : await openTermProxy(ticket, guest!);
         if (cancelled) return;
 
         term = new Terminal({
@@ -79,7 +87,7 @@ export function ConsoleTerminal({
       ws?.close();
       term?.dispose();
     };
-  }, [ticket, guest.node, guest.type, guest.vmid]);
+  }, [ticket, guest?.node, guest?.type, guest?.vmid, nodeShell?.node]);
 
   return (
     <div className="rounded-lg border border-border/60 overflow-hidden bg-[#111827]">
