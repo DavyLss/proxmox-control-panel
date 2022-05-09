@@ -20,6 +20,18 @@ export interface ProxmoxTicket {
   obtainedAt: number;
 }
 
+export interface ProxmoxTfaChallenge {
+  baseUrl: string;
+  username: string;
+  partialTicket: string;
+  CSRFPreventionToken: string;
+  types: { totp?: boolean; recovery?: boolean; webauthn?: boolean; yubico?: boolean };
+}
+
+export type LoginResult =
+  | { kind: "ok"; ticket: ProxmoxTicket }
+  | { kind: "tfa"; challenge: ProxmoxTfaChallenge };
+
 const TICKET_TTL_MS = 1000 * 60 * 60 * 1.5; // Proxmox tickets last ~2h
 
 export function isTicketValid(t: ProxmoxTicket | null): t is ProxmoxTicket {
@@ -30,7 +42,7 @@ function trimUrl(u: string) {
   return u.replace(/\/+$/, "");
 }
 
-export async function login(c: ProxmoxCredentials): Promise<ProxmoxTicket> {
+export async function login(c: ProxmoxCredentials): Promise<LoginResult> {
   const baseUrl = trimUrl(c.baseUrl);
   const body = new URLSearchParams({
     username: `${c.username}@${c.realm}`,
@@ -42,6 +54,10 @@ export async function login(c: ProxmoxCredentials): Promise<ProxmoxTicket> {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
     credentials: "include",
+  }).catch((e) => {
+    throw new Error(
+      `Impossible de joindre ${baseUrl}. Acceptez d'abord le certificat TLS dans votre navigateur (ouvrez l'URL directement) et vérifiez la configuration CORS de Proxmox. Détail: ${e instanceof Error ? e.message : String(e)}`,
+    );
   });
 
   if (!res.ok) {
@@ -50,10 +66,76 @@ export async function login(c: ProxmoxCredentials): Promise<ProxmoxTicket> {
     );
   }
   const json = (await res.json()) as {
+    data: {
+      ticket: string;
+      CSRFPreventionToken: string;
+      username: string;
+      NeedTFA?: number;
+      "tfa-challenge"?: string;
+    };
+  };
+  if (json.data.NeedTFA === 1 || json.data.ticket?.startsWith("PVE:")) {
+    let types: ProxmoxTfaChallenge["types"] = { totp: true };
+    const challenge = json.data["tfa-challenge"];
+    if (challenge) {
+      try {
+        const payload = JSON.parse(atob(challenge.split(":")[1] ?? "")) as Record<string, unknown>;
+        types = {
+          totp: !!payload.totp,
+          recovery: !!payload.recovery,
+          webauthn: !!payload.webauthn,
+          yubico: !!payload.yubico,
+        };
+      } catch { /* ignore */ }
+    }
+    return {
+      kind: "tfa",
+      challenge: {
+        baseUrl,
+        username: json.data.username,
+        partialTicket: json.data.ticket,
+        CSRFPreventionToken: json.data.CSRFPreventionToken,
+        types,
+      },
+    };
+  }
+  return {
+    kind: "ok",
+    ticket: {
+      baseUrl,
+      username: json.data.username,
+      ticket: json.data.ticket,
+      CSRFPreventionToken: json.data.CSRFPreventionToken,
+      obtainedAt: Date.now(),
+    },
+  };
+}
+
+export async function loginTfa(
+  c: ProxmoxTfaChallenge,
+  code: string,
+  kind: "totp" | "recovery" = "totp",
+): Promise<ProxmoxTicket> {
+  const body = new URLSearchParams({
+    username: c.username,
+    "tfa-challenge": c.partialTicket,
+    password: `${kind}:${code}`,
+  });
+  const res = await fetch(`${c.baseUrl}/api2/json/access/ticket`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      CSRFPreventionToken: c.CSRFPreventionToken,
+    },
+    body,
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error(`Code 2FA invalide (${res.status}).`);
+  const json = (await res.json()) as {
     data: { ticket: string; CSRFPreventionToken: string; username: string };
   };
   return {
-    baseUrl,
+    baseUrl: c.baseUrl,
     username: json.data.username,
     ticket: json.data.ticket,
     CSRFPreventionToken: json.data.CSRFPreventionToken,
