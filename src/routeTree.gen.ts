@@ -16,6 +16,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
 import { Route as AuthenticatedNodesIndexRouteImport } from './routes/_authenticated/nodes.index'
 import { Route as AuthenticatedGuestsIndexRouteImport } from './routes/_authenticated/guests.index'
+import { Route as AuthenticatedNodesNodeRouteImport } from './routes/_authenticated/nodes.$node'
 import { Route as AuthenticatedGuestsTypeNodeVmidRouteImport } from './routes/_authenticated/guests.$type.$node.$vmid'
 
 const LoginRoute = LoginRouteImport.update({
@@ -53,6 +54,11 @@ const AuthenticatedGuestsIndexRoute =
     path: '/guests/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedNodesNodeRoute = AuthenticatedNodesNodeRouteImport.update({
+  id: '/nodes/$node',
+  path: '/nodes/$node',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedGuestsTypeNodeVmidRoute =
   AuthenticatedGuestsTypeNodeVmidRouteImport.update({
     id: '/guests/$type/$node/$vmid',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/nodes/$node': typeof AuthenticatedNodesNodeRoute
   '/guests/': typeof AuthenticatedGuestsIndexRoute
   '/nodes/': typeof AuthenticatedNodesIndexRoute
   '/guests/$type/$node/$vmid': typeof AuthenticatedGuestsTypeNodeVmidRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/nodes/$node': typeof AuthenticatedNodesNodeRoute
   '/guests': typeof AuthenticatedGuestsIndexRoute
   '/nodes': typeof AuthenticatedNodesIndexRoute
   '/guests/$type/$node/$vmid': typeof AuthenticatedGuestsTypeNodeVmidRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/create': typeof AuthenticatedCreateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/nodes/$node': typeof AuthenticatedNodesNodeRoute
   '/_authenticated/guests/': typeof AuthenticatedGuestsIndexRoute
   '/_authenticated/nodes/': typeof AuthenticatedNodesIndexRoute
   '/_authenticated/guests/$type/$node/$vmid': typeof AuthenticatedGuestsTypeNodeVmidRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/create'
     | '/dashboard'
+    | '/nodes/$node'
     | '/guests/'
     | '/nodes/'
     | '/guests/$type/$node/$vmid'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/create'
     | '/dashboard'
+    | '/nodes/$node'
     | '/guests'
     | '/nodes'
     | '/guests/$type/$node/$vmid'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_authenticated/create'
     | '/_authenticated/dashboard'
+    | '/_authenticated/nodes/$node'
     | '/_authenticated/guests/'
     | '/_authenticated/nodes/'
     | '/_authenticated/guests/$type/$node/$vmid'
@@ -177,6 +189,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGuestsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/nodes/$node': {
+      id: '/_authenticated/nodes/$node'
+      path: '/nodes/$node'
+      fullPath: '/nodes/$node'
+      preLoaderRoute: typeof AuthenticatedNodesNodeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/guests/$type/$node/$vmid': {
       id: '/_authenticated/guests/$type/$node/$vmid'
       path: '/guests/$type/$node/$vmid'
@@ -190,6 +209,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedCreateRoute: typeof AuthenticatedCreateRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedNodesNodeRoute: typeof AuthenticatedNodesNodeRoute
   AuthenticatedGuestsIndexRoute: typeof AuthenticatedGuestsIndexRoute
   AuthenticatedNodesIndexRoute: typeof AuthenticatedNodesIndexRoute
   AuthenticatedGuestsTypeNodeVmidRoute: typeof AuthenticatedGuestsTypeNodeVmidRoute
@@ -198,6 +218,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCreateRoute: AuthenticatedCreateRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedNodesNodeRoute: AuthenticatedNodesNodeRoute,
   AuthenticatedGuestsIndexRoute: AuthenticatedGuestsIndexRoute,
   AuthenticatedNodesIndexRoute: AuthenticatedNodesIndexRoute,
   AuthenticatedGuestsTypeNodeVmidRoute: AuthenticatedGuestsTypeNodeVmidRoute,
@@ -215,3 +236,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
