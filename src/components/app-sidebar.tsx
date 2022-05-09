@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Server, Plus, Boxes } from "lucide-react";
+import { LayoutDashboard, Server, Plus, Boxes, Save } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,7 @@ const items = [
   { title: "Machines", url: "/guests", icon: Boxes },
   { title: "Nœuds", url: "/nodes", icon: Server },
   { title: "Créer", url: "/create", icon: Plus },
+  { title: "Sauvegardes", url: "/backups", icon: Save },
 ];
 
 export function AppSidebar() {
@@ -45,7 +46,10 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton asChild isActive={active}>
-                      <Link to={item.url} className="flex items-center gap-2">
+                      <Link
+                        to={item.url as "/dashboard" | "/guests" | "/nodes" | "/create" | "/backups"}
+                        className="flex items-center gap-2"
+                      >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
                       </Link>
