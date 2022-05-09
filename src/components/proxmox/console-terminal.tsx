@@ -22,7 +22,7 @@ export function ConsoleTerminal({
 
     (async () => {
       try {
-        const { wsUrl, connectPayload } = await openTermProxy(ticket, guest);
+        const { wsUrl, vncticket, user } = await openTermProxy(ticket, guest);
         if (cancelled) return;
 
         term = new Terminal({
@@ -44,7 +44,7 @@ export function ConsoleTerminal({
         ws.binaryType = "arraybuffer";
 
         ws.onopen = () => {
-          ws!.send(JSON.stringify(connectPayload));
+          ws!.send(`${user}:${vncticket}\n`);
           term!.writeln("\x1b[32mConnecté à la console.\x1b[0m\r\n");
         };
         ws.onmessage = (ev) => {
