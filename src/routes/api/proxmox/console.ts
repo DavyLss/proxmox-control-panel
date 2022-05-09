@@ -115,7 +115,7 @@ export const Route = createFileRoute("/api/proxmox/console")({
               data: { ticket: string; port: string | number; user?: string };
             };
             const wsRes = (await fetch(
-              `${baseUrl.replace(/^http/, "ws")}/api2/json/nodes/${node}/${type}/${vmid}/vncwebsocket?port=${termJson.data.port}&vncticket=${encodeURIComponent(termJson.data.ticket)}`,
+              `${baseUrl}/api2/json/nodes/${node}/${type}/${vmid}/vncwebsocket?port=${termJson.data.port}&vncticket=${encodeURIComponent(termJson.data.ticket)}`,
               {
                 headers: {
                   Upgrade: "websocket",
