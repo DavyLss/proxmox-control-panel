@@ -113,6 +113,34 @@ export async function login(c: ProxmoxCredentials): Promise<LoginResult> {
   };
 }
 
+/**
+ * Renew a Proxmox ticket. PVE accepts the existing ticket as the password
+ * to issue a fresh one (valid another ~2h) without re-prompting credentials.
+ */
+export async function refreshTicket(t: ProxmoxTicket): Promise<ProxmoxTicket> {
+  const body = new URLSearchParams({
+    username: t.username,
+    password: t.ticket,
+  });
+  const res = await fetch(`${t.baseUrl}/api2/json/access/ticket`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error(`Renouvellement ticket échoué (${res.status})`);
+  const json = (await res.json()) as {
+    data: { ticket: string; CSRFPreventionToken: string; username: string };
+  };
+  return {
+    baseUrl: t.baseUrl,
+    username: json.data.username,
+    ticket: json.data.ticket,
+    CSRFPreventionToken: json.data.CSRFPreventionToken,
+    obtainedAt: Date.now(),
+  };
+}
+
 export async function loginTfa(
   c: ProxmoxTfaChallenge,
   code: string,
