@@ -16,6 +16,7 @@ import { Route as AuthenticatedNodesRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreateRouteImport } from './routes/_authenticated/create'
 import { Route as AuthenticatedGuestsIndexRouteImport } from './routes/_authenticated/guests.index'
+import { Route as ApiProxmoxConsoleRouteImport } from './routes/api/proxmox/console'
 import { Route as AuthenticatedGuestsTypeNodeVmidRouteImport } from './routes/_authenticated/guests.$type.$node.$vmid'
 
 const LoginRoute = LoginRouteImport.update({
@@ -53,6 +54,11 @@ const AuthenticatedGuestsIndexRoute =
     path: '/guests/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiProxmoxConsoleRoute = ApiProxmoxConsoleRouteImport.update({
+  id: '/api/proxmox/console',
+  path: '/api/proxmox/console',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedGuestsTypeNodeVmidRoute =
   AuthenticatedGuestsTypeNodeVmidRouteImport.update({
     id: '/guests/$type/$node/$vmid',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/nodes': typeof AuthenticatedNodesRoute
+  '/api/proxmox/console': typeof ApiProxmoxConsoleRoute
   '/guests/': typeof AuthenticatedGuestsIndexRoute
   '/guests/$type/$node/$vmid': typeof AuthenticatedGuestsTypeNodeVmidRoute
 }
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/create': typeof AuthenticatedCreateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/nodes': typeof AuthenticatedNodesRoute
+  '/api/proxmox/console': typeof ApiProxmoxConsoleRoute
   '/guests': typeof AuthenticatedGuestsIndexRoute
   '/guests/$type/$node/$vmid': typeof AuthenticatedGuestsTypeNodeVmidRoute
 }
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/_authenticated/create': typeof AuthenticatedCreateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/nodes': typeof AuthenticatedNodesRoute
+  '/api/proxmox/console': typeof ApiProxmoxConsoleRoute
   '/_authenticated/guests/': typeof AuthenticatedGuestsIndexRoute
   '/_authenticated/guests/$type/$node/$vmid': typeof AuthenticatedGuestsTypeNodeVmidRoute
 }
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/create'
     | '/dashboard'
     | '/nodes'
+    | '/api/proxmox/console'
     | '/guests/'
     | '/guests/$type/$node/$vmid'
   fileRoutesByTo: FileRoutesByTo
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/create'
     | '/dashboard'
     | '/nodes'
+    | '/api/proxmox/console'
     | '/guests'
     | '/guests/$type/$node/$vmid'
   id:
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/_authenticated/create'
     | '/_authenticated/dashboard'
     | '/_authenticated/nodes'
+    | '/api/proxmox/console'
     | '/_authenticated/guests/'
     | '/_authenticated/guests/$type/$node/$vmid'
   fileRoutesById: FileRoutesById
@@ -124,6 +136,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ApiProxmoxConsoleRoute: typeof ApiProxmoxConsoleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -177,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGuestsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/proxmox/console': {
+      id: '/api/proxmox/console'
+      path: '/api/proxmox/console'
+      fullPath: '/api/proxmox/console'
+      preLoaderRoute: typeof ApiProxmoxConsoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/guests/$type/$node/$vmid': {
       id: '/_authenticated/guests/$type/$node/$vmid'
       path: '/guests/$type/$node/$vmid'
@@ -211,7 +231,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  ApiProxmoxConsoleRoute: ApiProxmoxConsoleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
