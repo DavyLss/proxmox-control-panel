@@ -386,6 +386,12 @@ export async function createLxc(
  * Open a websocket terminal (xterm proxy) for a VM/LXC.
  * Returns the WebSocket and the term metadata you must wire to xterm.js.
  */
+function proxmoxWsBaseUrl(baseUrl: string) {
+  const url = new URL(baseUrl);
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  return url.origin;
+}
+
 export async function openTermProxy(
   t: ProxmoxTicket,
   g: { node: string; type: "qemu" | "lxc"; vmid: number },
@@ -396,16 +402,10 @@ export async function openTermProxy(
     { method: "POST" },
   );
   const params = new URLSearchParams({
-    baseUrl: t.baseUrl,
-    username: data.user ?? t.username,
-    ticket: t.ticket,
-    node: g.node,
-    type: g.type,
-    vmid: String(g.vmid),
     port: String(data.port),
     vncticket: data.ticket,
   });
-  const wsUrl = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/api/proxmox/console?${params.toString()}`;
+  const wsUrl = `${proxmoxWsBaseUrl(t.baseUrl)}/api2/json/nodes/${g.node}/${g.type}/${g.vmid}/vncwebsocket?${params.toString()}`;
   return { wsUrl, vncticket: data.ticket, user: data.user ?? t.username };
 }
 
@@ -416,14 +416,10 @@ export async function openNodeTermProxy(t: ProxmoxTicket, node: string) {
     { method: "POST" },
   );
   const params = new URLSearchParams({
-    baseUrl: t.baseUrl,
-    username: data.user ?? t.username,
-    ticket: t.ticket,
-    node,
     port: String(data.port),
     vncticket: data.ticket,
   });
-  const wsUrl = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/api/proxmox/console?${params.toString()}`;
+  const wsUrl = `${proxmoxWsBaseUrl(t.baseUrl)}/api2/json/nodes/${node}/vncwebsocket?${params.toString()}`;
   return { wsUrl, vncticket: data.ticket, user: data.user ?? t.username };
 }
 
