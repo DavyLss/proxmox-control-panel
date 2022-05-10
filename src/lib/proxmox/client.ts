@@ -404,6 +404,7 @@ export async function openTermProxy(
   const params = new URLSearchParams({
     port: String(data.port),
     vncticket: data.ticket,
+    pveauthcookie: t.ticket,
   });
   const wsUrl = `${proxmoxWsBaseUrl(t.baseUrl)}/api2/json/nodes/${g.node}/${g.type}/${g.vmid}/vncwebsocket?${params.toString()}`;
   return { wsUrl, vncticket: data.ticket, user: data.user ?? t.username };
@@ -418,6 +419,7 @@ export async function openNodeTermProxy(t: ProxmoxTicket, node: string) {
   const params = new URLSearchParams({
     port: String(data.port),
     vncticket: data.ticket,
+    pveauthcookie: t.ticket,
   });
   const wsUrl = `${proxmoxWsBaseUrl(t.baseUrl)}/api2/json/nodes/${node}/vncwebsocket?${params.toString()}`;
   return { wsUrl, vncticket: data.ticket, user: data.user ?? t.username };
