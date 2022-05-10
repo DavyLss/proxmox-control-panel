@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO="${REPO:-DavyLss/proxmox-control-panel}"
-OUT_DIR=".github/badges"
+OUT_DIR="docs/badges"
 TOKEN="${GITHUB_TOKEN:-}"
 
 if [[ -z "$TOKEN" ]]; then

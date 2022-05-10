@@ -1,17 +1,17 @@
 # Proxmox Control Panel
 
 <p align="center">
-  <a href="https://github.com/DavyLss/proxmox-control-panel"><img src=".github/badges/repository.svg" alt="Repository" /></a>
-  <img src=".github/badges/stars.svg" alt="Stars" />
-  <img src=".github/badges/forks.svg" alt="Forks" />
-  <img src=".github/badges/issues.svg" alt="Open issues" />
+  <a href="https://github.com/DavyLss/proxmox-control-panel"><img src="docs/badges/repository.svg" alt="Repository" /></a>
+  <img src="docs/badges/stars.svg" alt="Stars" />
+  <img src="docs/badges/forks.svg" alt="Forks" />
+  <img src="docs/badges/issues.svg" alt="Open issues" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/DavyLss/proxmox-control-panel/actions/workflows/docker-image.yml"><img src=".github/badges/docker-build.svg" alt="Docker workflow status" /></a>
-  <img src=".github/badges/default-branch.svg" alt="Default branch develop" />
-  <img src=".github/badges/runtime.svg" alt="Runtime" />
-  <img src=".github/badges/ui-stack.svg" alt="UI stack" />
+  <a href="https://github.com/DavyLss/proxmox-control-panel/actions"><img src="docs/badges/docker-build.svg" alt="Docker workflow status" /></a>
+  <img src="docs/badges/default-branch.svg" alt="Default branch develop" />
+  <img src="docs/badges/runtime.svg" alt="Runtime" />
+  <img src="docs/badges/ui-stack.svg" alt="UI stack" />
 </p>
 
 <p align="center">
