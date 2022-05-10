@@ -15,34 +15,35 @@
 </p>
 
 <p align="center">
-  <strong>A modern web control panel for Proxmox VE.</strong><br/>
-  Manage nodes, VMs, LXC containers, backups, monitoring, and console access from one UI.<br/>
-  <a href="https://proxmox-control-panel.lassechere.fr/"><strong>Live Demo</strong></a>
+  <strong>Interface web plus simple et plus rapide pour gérer Proxmox VE.</strong><br/>
+  Vois toutes tes VMs, LXC, backups, et monitoring — sans devoir naviguer dans 10 pages.<br/>
+  <a href="https://proxmox-control-panel.lassechere.fr/"><strong>Démo en ligne</strong></a>
 </p>
 
 ---
 
-## Why this project
+## Pourquoi ce projet ?
 
-Proxmox is powerful, but daily operations often require jumping across multiple pages and low-level views.
-This project gives you a cleaner operator experience for common tasks:
+Parce que l’interface native de Proxmox est super complète… mais pour les tâches du quotidien (redémarrer une VM, vérifier un backup, accéder à une console), c’est souvent trop bas niveau et trop dispersé.
 
-- infrastructure overview
-- guest lifecycle and quick actions
-- charts and node metrics
-- backup visibility
-- web console access
+J’avais marre de devoir cliquer dans 3 sous‑menus juste pour voir l’état d’une machine, ou de ne pas avoir une vue d’ensemble rapide de tout mon cluster.
+
+Ce que cette interface apporte :
+- Une seule page pour voir TOUTES les VMs et LXC, avec actions rapides
+- Monitoring en temps réel avec graphiques clairs
+- Accès console web en 1 clic
+- Vue centralisée des backups et jobs
 
 ---
 
-## Features
+## Fonctionnalités
 
-- **Dashboard:** global health snapshot of your Proxmox estate
-- **Guests inventory:** VMs + LXCs in one place
-- **Node pages:** status, resources, and monitoring charts
-- **Create workflows:** create QEMU VMs and LXC containers
-- **Backups:** browse backup jobs and storage data
-- **Console access:** node/guest console helpers through Proxmox API routes
+- **Dashboard** : Vue d’ensemble de la santé de ton cluster (nœuds en ligne, CPU/RAM cumulé, nombre de machines)
+- **Inventaire machines** : Toutes tes VMs QEMU et conteneurs LXC sur une seule page, avec filtres et actions rapides (start/stop/reboot/console)
+- **Pages nœuds** : Statut détaillé, monitoring avec graphiques CPU/RAM/réseau, console shell du nœud
+- **Création de machines** : Wizard pour créer des VMs QEMU ou conteneurs LXC, avec mode simple et expert
+- **Gestion backups** : Visualise et gère tes jobs de backup vzdump, lance des backups à la demande
+- **Console web** : Accès terminal en 1 clic pour les nœuds et les machines (via xterm.js + WebSocket)
 
 ---
 
@@ -240,14 +241,7 @@ Add the hostname to `vite.server.allowedHosts` in `vite.config.ts`.
 
 ---
 
-## Repository
+## Liens utiles
 
-- GitHub: https://github.com/DavyLss/proxmox-control-panel
-- Live demo: https://proxmox-control-panel.lassechere.fr/
-
-If you want, next step I can also add:
-
-- contribution guide (`CONTRIBUTING.md`)
-- issue/PR templates
-- release notes template
-- architecture diagram (Mermaid)
+- **Code source** : https://github.com/DavyLss/proxmox-control-panel
+- **Démo** : https://proxmox-control-panel.lassechere.fr/
