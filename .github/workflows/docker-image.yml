@@ -3,7 +3,6 @@ name: Build and push proxmox-control-panel image
 on:
   push:
     branches:
-      - main
       - develop
   workflow_dispatch:
 

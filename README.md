@@ -1,378 +1,259 @@
 # Proxmox Control Panel
 
 <p align="center">
-  <img src="https://img.shields.io/github/stars/DavyLss/proxmox-control-panel?style=flat-square" alt="stars" />
-  <img src="https://img.shields.io/github/last-commit/DavyLss/proxmox-control-panel?style=flat-square" alt="last commit" />
-  <img src="https://img.shields.io/github/actions/workflow/status/DavyLss/proxmox-control-panel/docker-image.yml?branch=develop&style=flat-square" alt="docker workflow" />
-  <img src="https://img.shields.io/badge/runtime-React%20%2B%20TanStack%20Start-2b2b2b?style=flat-square" alt="runtime" />
-  <img src="https://img.shields.io/badge/deploy-Docker%20%2F%20GHCR-2b2b2b?style=flat-square" alt="deploy" />
+  <a href="https://github.com/DavyLss/proxmox-control-panel/stargazers"><img src="https://img.shields.io/github/stars/DavyLss/proxmox-control-panel?style=for-the-badge" alt="GitHub stars" /></a>
+  <a href="https://github.com/DavyLss/proxmox-control-panel/network/members"><img src="https://img.shields.io/github/forks/DavyLss/proxmox-control-panel?style=for-the-badge" alt="GitHub forks" /></a>
+  <a href="https://github.com/DavyLss/proxmox-control-panel/issues"><img src="https://img.shields.io/github/issues/DavyLss/proxmox-control-panel?style=for-the-badge" alt="GitHub issues" /></a>
+  <a href="https://github.com/DavyLss/proxmox-control-panel/commits/develop/"><img src="https://img.shields.io/github/last-commit/DavyLss/proxmox-control-panel/develop?style=for-the-badge" alt="Last commit (develop)" /></a>
 </p>
 
-<p align="center"><strong>Modern Proxmox VE control panel for nodes, VMs, LXC containers, backups, monitoring, and console access.</strong><br/>
-<strong>Interface moderne pour piloter Proxmox VE : nœuds, VMs, conteneurs LXC, sauvegardes, monitoring et accès console.</strong></p>
+<p align="center">
+  <a href="https://github.com/DavyLss/proxmox-control-panel/actions/workflows/docker-image.yml"><img src="https://img.shields.io/github/actions/workflow/status/DavyLss/proxmox-control-panel/docker-image.yml?branch=develop&style=for-the-badge&label=Docker%20Build" alt="Docker workflow status" /></a>
+  <a href="https://github.com/DavyLss/proxmox-control-panel/pkgs/container/proxmox-control-panel"><img src="https://img.shields.io/badge/GHCR-ghcr.io%2Fdavylss%2Fproxmox--control--panel-2ea44f?style=for-the-badge" alt="GHCR image" /></a>
+  <img src="https://img.shields.io/badge/Branch-develop-blue?style=for-the-badge" alt="Default branch develop" />
+  <img src="https://img.shields.io/badge/Stack-React%20%2B%20TanStack%20Start%20%2B%20TypeScript-111827?style=for-the-badge" alt="Tech stack" />
+</p>
+
+<p align="center">
+  <strong>A modern web control panel for Proxmox VE.</strong><br/>
+  Manage nodes, VMs, LXC containers, backups, monitoring, and console access from one UI.
+</p>
 
 ---
 
-## Quick facts / Faits rapides
+## Why this project
 
-- **Frontend:** React + TanStack Start + Vite  
-  **Frontend :** React + TanStack Start + Vite
-- **UI:** shadcn/ui + Tailwind CSS  
-  **UI :** shadcn/ui + Tailwind CSS
-- **Runtime used in deployment:** Docker container running `npm run start` (`vite dev --host 0.0.0.0 --port 8080`)  
-  **Runtime utilisé en déploiement :** conteneur Docker exécutant `npm run start` (`vite dev --host 0.0.0.0 --port 8080`)
-- **Distribution:** GHCR image + Docker Compose  
-  **Distribution :** image GHCR + Docker Compose
-- **Target:** Proxmox VE environments exposed through HTTPS / Cloudflare  
-  **Cible :** environnements Proxmox VE exposés en HTTPS / Cloudflare
+Proxmox is powerful, but daily operations often require jumping across multiple pages and low-level views.
+This project gives you a cleaner operator experience for common tasks:
+
+- infrastructure overview
+- guest lifecycle and quick actions
+- charts and node metrics
+- backup visibility
+- web console access
 
 ---
 
-## Highlights / Points forts
+## Features
 
-- Browse **nodes**, **VMs**, and **LXC containers** from one interface.  
-  Parcourez les **nœuds**, **VMs** et **conteneurs LXC** depuis une seule interface.
-- View **dashboard metrics** and **monitoring charts** for nodes and guests.  
-  Consultez des **métriques de dashboard** et des **graphiques de monitoring** pour les nœuds et les machines.
-- Create **QEMU VMs** and **LXC containers** from the UI.  
-  Créez des **VMs QEMU** et des **conteneurs LXC** depuis l’interface.
-- Open **web consoles** for nodes, VMs, and LXC guests.  
-  Ouvrez des **consoles web** pour les nœuds, VMs et conteneurs LXC.
-- Manage and inspect **backup jobs** and guest backups.  
-  Gérez et consultez les **tâches de sauvegarde** et les sauvegardes des machines.
-- Works with a **Cloudflare fronted Proxmox endpoint**, including CORS/WebSocket adjustments when required.  
-  Fonctionne avec un **endpoint Proxmox exposé via Cloudflare**, y compris les ajustements CORS/WebSocket si nécessaire.
+- **Dashboard:** global health snapshot of your Proxmox estate
+- **Guests inventory:** VMs + LXCs in one place
+- **Node pages:** status, resources, and monitoring charts
+- **Create workflows:** create QEMU VMs and LXC containers
+- **Backups:** browse backup jobs and storage data
+- **Console access:** node/guest console helpers through Proxmox API routes
 
-### Dashboard / Vue d’ensemble
+---
 
+## Project widgets
+
+These widgets are pinned to the **develop** branch and active workflow:
+
+- Docker build status (GitHub Actions)
+- Last commit on develop
+- Issues / stars / forks
+- GHCR image reference
+
+> If a widget looks stale, GitHub/Shield cache can take a few minutes to refresh.
+
+---
+
+## Screenshots
+
+### Dashboard
 ![Dashboard](docs/images/dashboard.jpg)
 
-### Guests list / Liste des machines
-
+### Guests list
 ![Guests list](docs/images/guests-list.jpg)
 
-### Node monitoring / Monitoring d’un nœud
-
+### Node monitoring
 ![Node monitoring](docs/images/node-monitoring.jpg)
 
-### Create LXC / Création LXC
-
+### Create LXC
 ![Create LXC](docs/images/create-lxc.jpg)
 
-### Create QEMU VM / Création VM QEMU
-
+### Create QEMU VM
 ![Create QEMU VM](docs/images/create-qemu.jpg)
 
-### Backups / Sauvegardes
-
+### Backups
 ![Backups](docs/images/backups.jpg)
 
 ---
 
-## Main sections / Sections principales
+## Quick start
 
-- **Dashboard / Vue d’ensemble**  
-  Global visibility on nodes and infrastructure status.
-- **Machines**  
-  Guest inventory with quick access to details and console.
-- **Nodes / Nœuds**  
-  Node-level status, monitoring, console, and backup jobs.
-- **Create / Créer**  
-  Create QEMU VMs and LXC containers.
-- **Backups / Sauvegardes**  
-  Review backup storage and scheduled backup jobs.
-
----
-
-## Install & run / Installation et exécution
-
-### Option 1 — Run with Docker Compose / Lancer avec Docker Compose
+### 1) Clone
 
 ```bash
 git clone https://github.com/DavyLss/proxmox-control-panel.git
 cd proxmox-control-panel
-cp .env.example .env 2>/dev/null || true
+git checkout develop
+```
 
+### 2) Run with Docker Compose
+
+```bash
 docker compose up -d --build
 ```
 
-The app is expected on port `8080`.  
-L’application est prévue sur le port `8080`.
+App URL (default): `http://localhost:8080`
 
-If you deploy from GHCR, `docker-compose.yml` already supports:
-
-```yaml
-image: ghcr.io/davylss/proxmox-control-panel:${IMAGE_TAG:-develop}
-```
-
-### Option 2 — Local development / Développement local
+### 3) Local dev mode
 
 ```bash
-git clone https://github.com/DavyLss/proxmox-control-panel.git
-cd proxmox-control-panel
 npm install
 npm run build
 npm run start
 ```
 
-Then open: `http://localhost:8080`  
-Puis ouvrez : `http://localhost:8080`
-
 ---
 
-## Build & publish image / Construire et publier l’image
+## Docker image (GHCR)
 
-A GitHub Actions workflow builds and pushes the image to **GHCR** on pushes to:
-
-- `main`
-- `develop`
-
-Workflow file:
-
-- `.github/workflows/docker-image.yml`
-
-Published image:
+Image is published to:
 
 - `ghcr.io/davylss/proxmox-control-panel`
 
+Example compose reference:
+
+```yaml
+services:
+  proxmox-control-panel:
+    image: ghcr.io/davylss/proxmox-control-panel:${IMAGE_TAG:-develop}
+    ports:
+      - "8080:8080"
+```
+
 ---
 
-## Deployment pattern / Pattern de déploiement
+## Deployment model
 
-This repository is designed to fit a simple target-host pattern:
+Recommended target-host pattern:
 
-- repository cloned in `/opt/proxmox-control-panel`
-- local deployment script on the target host/container
-- update with `git fetch` + `git reset --hard origin/develop`
-- deploy with `docker compose up -d --build`
+- clone repo in `/opt/proxmox-control-panel`
+- track only `develop`
+- update with hard reset
+- redeploy with Docker Compose
 
-Pattern recommandé :
-
-- dépôt cloné dans `/opt/proxmox-control-panel`
-- script de déploiement local sur l’hôte/conteneur cible
-- mise à jour avec `git fetch` + `git reset --hard origin/develop`
-- déploiement via `docker compose up -d --build`
-
-Example local deploy script logic:
+Example:
 
 ```bash
 git fetch origin develop
 git checkout develop
 git reset --hard origin/develop
-[ -f .env ] || printf 'IMAGE_TAG=develop\n' > .env
 docker compose pull --ignore-buildable || true
 docker compose up -d --build --remove-orphans
 ```
 
 ---
 
-## Cloudflare & Proxmox prerequisites / Prérequis Cloudflare & Proxmox
+## Proxmox + Cloudflare prerequisites
 
-This project can work behind Cloudflare, but **console access and direct API login require a clean cross-origin setup**.
+For stable API + console behavior behind Cloudflare:
 
-Ce projet peut fonctionner derrière Cloudflare, mais **l’accès console et la connexion API directe exigent une configuration cross-origin propre**.
+1. Proxmox endpoint reachable in HTTPS
+2. frontend hostname allowed in `vite.config.ts` (`server.allowedHosts`)
+3. CORS headers correctly returned on `/api2/*`
+4. WebSocket upgrades preserved for console routes
+5. auth ticket/cookie compatibility handled end-to-end
 
-### 1) Proxmox endpoint must be reachable in HTTPS
+If you route Proxmox through a Cloudflare Worker, ensure it handles:
 
-Example:
-
-- `https://iaas.ilteam.fr`
-
-The certificate must be valid from the browser point of view.  
-Le certificat doit être valide du point de vue du navigateur.
-
-### 2) Allowed host on the app side / Hôte autorisé côté app
-
-If the app is exposed through Cloudflare, add the public hostname in `vite.config.ts`:
-
-```ts
-vite: {
-  server: {
-    allowedHosts: ["proxmox-control-panel.lassechere.fr"],
-  },
-}
-```
-
-Without this, Vite may reject the public hostname.  
-Sinon, Vite peut refuser le hostname public.
-
-### 3) CORS for `/api2/*`
-
-If Proxmox is accessed from the browser through a different origin than the app, the API path must allow the app origin.
-
-If using Cloudflare in front of Proxmox, ensure responses for `https://iaas.ilteam.fr/api2/*` expose at least:
-
-- `Access-Control-Allow-Origin: https://proxmox-control-panel.lassechere.fr`
-- `Access-Control-Allow-Credentials: true`
-- `Access-Control-Allow-Headers: Content-Type, CSRFPreventionToken, Authorization`
-- `Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS`
-- `Access-Control-Expose-Headers: CSRFPreventionToken`
-
-### 4) Cloudflare Worker for API and console / Worker Cloudflare pour API et console
-
-In the current working setup, a Cloudflare Worker is attached to:
-
-- route: `iaas.ilteam.fr/api2/*`
-- script: `cors-proxmox-api`
-
-Its responsibilities are:
-
-- answer CORS preflight requests
-- return the correct `Access-Control-Allow-Origin`
-- preserve websocket upgrades
-- rewrite Proxmox cookies for browser compatibility when needed
-- inject `PVEAuthCookie` for websocket console access when the console URL carries `pveauthcookie`
-
-If you reproduce this project on another domain, adapt the allowed origins list in that worker.
-
-### 5) Console/WebSocket requirements / Pré requis console/WebSocket
-
-For web console access to work reliably:
-
-- the Proxmox API route must support **WebSocket upgrades**
-- Cloudflare must not block websocket traffic on `/api2/*`
-- the authentication cookie/ticket must be forwarded to Proxmox for `vncwebsocket`
-- QEMU guests may require `serial0: socket` for xterm-based console usage
-- the guest or node must be running
-
-### 6) Permissions / Permissions Proxmox
-
-The connected Proxmox user must have the appropriate privileges, for example:
-
-- `Sys.Console` for node console access
-- guest access rights required by `termproxy` / `vncwebsocket`
-- backup permissions where backup screens are used
+- preflight (`OPTIONS`)
+- origin-aware CORS
+- websocket upgrade passthrough
+- cookie forwarding/rewriting compatibility for console paths
 
 ---
 
-## Authentication model / Modèle d’authentification
+## Authentication notes
 
-The app authenticates against Proxmox and stores the Proxmox ticket in browser storage.
-
-L’application s’authentifie auprès de Proxmox et stocke le ticket Proxmox dans le navigateur.
-
-Important points:
-
-- the ticket is restored client-side on reload
-- the ticket is auto-refreshed periodically
-- login can require TOTP / recovery code when Proxmox 2FA is enabled
-- no credentials should be committed to the repository
+- Login uses Proxmox authentication endpoints
+- Ticket/session is restored client-side on reload
+- Auto-refresh is used to keep sessions valid
+- TOTP/recovery support works when Proxmox 2FA is enabled
 
 ---
 
-## Runtime notes / Notes d’exécution
+## Tech stack
 
-At the time of this setup, the containerized runtime validated in production is:
-
-```bash
-npm run start
-```
-
-which currently maps to:
-
-```bash
-vite dev --host 0.0.0.0 --port 8080
-```
-
-A standalone SSR Node runtime was not the validated path for this deployment.  
-Un runtime SSR Node autonome n’a pas été le chemin validé pour ce déploiement.
+- **Frontend:** React 19 + TypeScript
+- **App framework:** TanStack Start + TanStack Router
+- **Build:** Vite
+- **UI:** shadcn/ui + Tailwind CSS + Radix UI
+- **Charts:** Recharts
+- **Container:** Docker
+- **Registry:** GHCR
 
 ---
 
-## Project structure / Structure du projet
+## Project structure
 
 ```text
 src/
   components/            # UI + Proxmox widgets
   lib/proxmox/           # API client, auth, console helpers
   routes/                # TanStack file-based routes
-.github/workflows/       # Docker build/push workflow
+.github/workflows/       # CI workflows
 Dockerfile               # Container image build
 /docker-compose.yml      # Local/target deployment
-vite.config.ts           # Vite + allowedHosts config
+vite.config.ts           # Vite + host allowlist
 ```
 
 ---
 
-## Useful commands / Commandes utiles
+## Useful commands
 
 ```bash
-# Install deps / Installer les dépendances
 npm install
-
-# Build / Compiler
 npm run build
-
-# Start locally / Démarrer localement
 npm run start
-
-# Lint
 npm run lint
-
-# Format
 npm run format
 ```
 
-Note: the repository may contain historical formatting issues unrelated to deployment validity.  
-Note : le dépôt peut contenir des écarts de formatage historiques sans impact sur le déploiement.
-
 ---
 
-## Troubleshooting / Dépannage
+## Troubleshooting
 
-### Login works but API says `Failed to fetch`
+### `Failed to fetch` after login
 
-Most likely causes:
+Usually CORS/origin mismatch on Proxmox API routes.
 
-- wrong CORS origin
-- Cloudflare worker not updated for the app hostname
-- invalid or blocked HTTPS endpoint
+### Console opens but stays blank
 
-### Login loops between `/login` and `/dashboard`
+Check websocket upgrade path, cookie forwarding, Proxmox permissions, and guest/node running state.
 
-This usually means auth restoration is not complete before redirect logic runs.  
-Cela signifie généralement que la restauration de session n’est pas terminée avant la redirection.
-
-### Console opens but stays blank / La console s’ouvre mais reste vide
-
-Check:
-
-- websocket upgrade support on `/api2/*`
-- Cloudflare worker handling for console websocket
-- Proxmox user privileges
-- `serial0: socket` for QEMU where needed
-- guest/node is running
-
-### Public hostname is blocked by Vite
+### Public hostname blocked
 
 Add the hostname to `vite.server.allowedHosts` in `vite.config.ts`.
 
 ---
 
-## Security notes / Notes de sécurité
+## Security recommendations
 
-- Do not store durable credentials in the repository.  
-  Ne stockez pas de secrets durables dans le dépôt.
-- Prefer Proxmox accounts/tokens with only the permissions needed.  
-  Préférez des comptes/tokens Proxmox limités au strict nécessaire.
-- If exposed through Cloudflare, review Worker behavior carefully because it can affect CORS, cookies, and websocket authentication.  
-  Si l’application est exposée via Cloudflare, relisez attentivement le comportement du Worker car il peut impacter CORS, cookies et authentification websocket.
+- Do not commit long-lived credentials/secrets
+- Use least-privilege Proxmox accounts/tokens
+- Review Cloudflare Worker behavior carefully when handling auth/cookies
 
 ---
 
-## Roadmap ideas / Idées d’évolution
+## Branch policy
 
-- automatic deployment workflow to the target LXC on push to `develop`
-- stronger same-origin proxy mode for Proxmox API access
-- hardened production runtime beyond current `vite dev` compatibility mode
-- better console diagnostics in the UI
+- **Default branch:** `develop`
+- **Production updates:** from validated commits on `develop`
+- **Deleted branch:** `main`
 
 ---
 
-## Repository / Dépôt
+## Repository
 
-- GitHub: `DavyLss/proxmox-control-panel`
-- Main public app example: `https://proxmox-control-panel.lassechere.fr/`
+- GitHub: https://github.com/DavyLss/proxmox-control-panel
+- Example deployment URL: https://proxmox-control-panel.lassechere.fr/
 
-If you adapt it for another environment, review both the deployment and Cloudflare sections first.  
-Si vous l’adaptez à un autre environnement, commencez par revoir les sections déploiement et Cloudflare.
+If you want, next step I can also add:
+
+- contribution guide (`CONTRIBUTING.md`)
+- issue/PR templates
+- release notes template
+- architecture diagram (Mermaid)
