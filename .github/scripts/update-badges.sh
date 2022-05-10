@@ -51,7 +51,7 @@ else
   esac
 fi
 
-badge "repository" "$REPO" "181717" "$OUT_DIR/repository.svg" "github"
+badge "repository" "GitHub" "181717" "$OUT_DIR/repository.svg" "github"
 badge "stars" "$stars" "f59e0b" "$OUT_DIR/stars.svg" "github"
 badge "forks" "$forks" "8b5cf6" "$OUT_DIR/forks.svg" "git"
 badge "open issues" "$issues" "0ea5e9" "$OUT_DIR/issues.svg" "github"
