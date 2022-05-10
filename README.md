@@ -1,10 +1,10 @@
 # Proxmox Control Panel
 
 <p align="center">
-  <a href="https://github.com/DavyLss/proxmox-control-panel/stargazers"><img src="https://img.shields.io/github/stars/DavyLss/proxmox-control-panel?style=for-the-badge" alt="GitHub stars" /></a>
-  <a href="https://github.com/DavyLss/proxmox-control-panel/network/members"><img src="https://img.shields.io/github/forks/DavyLss/proxmox-control-panel?style=for-the-badge" alt="GitHub forks" /></a>
-  <a href="https://github.com/DavyLss/proxmox-control-panel/issues"><img src="https://img.shields.io/github/issues/DavyLss/proxmox-control-panel?style=for-the-badge" alt="GitHub issues" /></a>
-  <a href="https://github.com/DavyLss/proxmox-control-panel/commits/develop/"><img src="https://img.shields.io/github/last-commit/DavyLss/proxmox-control-panel/develop?style=for-the-badge" alt="Last commit (develop)" /></a>
+  <a href="https://github.com/DavyLss/proxmox-control-panel"><img src="https://img.shields.io/badge/Repository-DavyLss%2Fproxmox--control--panel-181717?style=for-the-badge&logo=github" alt="Repository" /></a>
+  <img src="https://img.shields.io/badge/Default%20Branch-develop-2563eb?style=for-the-badge&logo=git" alt="Default branch develop" />
+  <img src="https://img.shields.io/badge/Runtime-Docker%20%7C%20Node-0ea5e9?style=for-the-badge" alt="Runtime" />
+  <img src="https://img.shields.io/badge/UI-React%20%2B%20TanStack-111827?style=for-the-badge" alt="UI stack" />
 </p>
 
 <p align="center">
