@@ -43,6 +43,30 @@
 - Works with a **Cloudflare fronted Proxmox endpoint**, including CORS/WebSocket adjustments when required.  
   Fonctionne avec un **endpoint Proxmox exposé via Cloudflare**, y compris les ajustements CORS/WebSocket si nécessaire.
 
+### Dashboard / Vue d’ensemble
+
+![Dashboard](docs/images/dashboard.jpg)
+
+### Guests list / Liste des machines
+
+![Guests list](docs/images/guests-list.jpg)
+
+### Node monitoring / Monitoring d’un nœud
+
+![Node monitoring](docs/images/node-monitoring.jpg)
+
+### Create LXC / Création LXC
+
+![Create LXC](docs/images/create-lxc.jpg)
+
+### Create QEMU VM / Création VM QEMU
+
+![Create QEMU VM](docs/images/create-qemu.jpg)
+
+### Backups / Sauvegardes
+
+![Backups](docs/images/backups.jpg)
+
 ---
 
 ## Main sections / Sections principales
