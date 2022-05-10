@@ -29,4 +29,6 @@ jobs:
             -i /home/actions/.ssh/id_ed25519_proxmox-control-panel_deploy \
             -o BatchMode=yes \
             -o RequestTTY=no \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
             deployer@10.10.10.126
