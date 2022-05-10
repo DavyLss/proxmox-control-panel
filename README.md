@@ -16,7 +16,8 @@
 
 <p align="center">
   <strong>A modern web control panel for Proxmox VE.</strong><br/>
-  Manage nodes, VMs, LXC containers, backups, monitoring, and console access from one UI.
+  Manage nodes, VMs, LXC containers, backups, monitoring, and console access from one UI.<br/>
+  <a href="https://proxmox-control-panel.lassechere.fr/"><strong>Live Demo</strong></a>
 </p>
 
 ---
@@ -236,7 +237,7 @@ Add the hostname to `vite.server.allowedHosts` in `vite.config.ts`.
 ## Repository
 
 - GitHub: https://github.com/DavyLss/proxmox-control-panel
-- Example deployment URL: https://proxmox-control-panel.lassechere.fr/
+- Live demo: https://proxmox-control-panel.lassechere.fr/
 
 If you want, next step I can also add:
 
