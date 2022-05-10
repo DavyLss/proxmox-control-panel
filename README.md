@@ -16,7 +16,7 @@
 
 <p align="center">
   <strong>A simpler, faster web interface for managing Proxmox VE.</strong><br/>
-  See all your VMs, LXC containers, backups, and monitoring — no more clicking through 10 submenus.<br/>
+  See all your VMs, LXC containers, backups, and monitoring - no more clicking through 10 submenus.<br/>
   <a href="https://proxmox-control-panel.lassechere.fr/"><strong>Live Demo</strong></a>
 </p>
 
