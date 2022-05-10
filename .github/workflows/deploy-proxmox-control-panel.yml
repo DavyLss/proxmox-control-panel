@@ -1,0 +1,32 @@
+name: Deploy proxmox-control-panel
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-proxmox-control-panel-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to LXC 126
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - proxmox-control-panel-deploy
+    timeout-minutes: 20
+
+    steps:
+      - name: Trigger internal deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh -n \
+            -i /home/actions/.ssh/id_ed25519_proxmox-control-panel_deploy \
+            -o BatchMode=yes \
+            -o RequestTTY=no \
+            deployer@10.10.10.126
