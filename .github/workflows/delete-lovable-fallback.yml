@@ -1,7 +1,7 @@
 name: Auto-delete lovable-fallback branch
 
 on:
-  create:
+  workflow_dispatch:
 
 permissions:
   contents: write
