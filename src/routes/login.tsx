@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/proxmox/auth-context";
 import type { ProxmoxTfaChallenge } from "@/lib/proxmox/client";
@@ -28,7 +28,6 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const { signIn, completeTfa, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const [baseUrl, setBaseUrl] = useState("https://192.168.1.10:8006");
   const [username, setUsername] = useState("root");
   const [realm, setRealm] = useState("pam");
@@ -45,8 +44,10 @@ function LoginPage() {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) navigate({ to: "/dashboard" });
-  }, [isAuthenticated, navigate]);
+    if (isAuthenticated && typeof window !== "undefined") {
+      window.location.replace("/dashboard");
+    }
+  }, [isAuthenticated]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +61,9 @@ function LoginPage() {
         toast.message("Authentification à deux facteurs requise");
       } else {
         toast.success("Connecté à Proxmox");
-        navigate({ to: "/dashboard" });
+        if (typeof window !== "undefined") {
+          window.location.assign("/dashboard");
+        }
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Échec de connexion");
@@ -76,7 +79,9 @@ function LoginPage() {
     try {
       await completeTfa(tfa, tfaCode.replace(/\s+/g, ""), tfaKind);
       toast.success("Connecté à Proxmox");
-      navigate({ to: "/dashboard" });
+      if (typeof window !== "undefined") {
+        window.location.assign("/dashboard");
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Code 2FA invalide");
     } finally {

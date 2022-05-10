@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -12,13 +12,12 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthLayout() {
   const { isAuthenticated, signOut, ticket } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate({ to: "/login", replace: true });
+    if (!isAuthenticated && typeof window !== "undefined") {
+      window.location.replace("/login");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated]);
 
   if (!isAuthenticated) {
     return (
@@ -45,7 +44,9 @@ function AuthLayout() {
               size="sm"
               onClick={() => {
                 signOut();
-                navigate({ to: "/login" });
+                if (typeof window !== "undefined") {
+                  window.location.assign("/login");
+                }
               }}
             >
               <LogOut className="h-4 w-4 mr-1.5" />
