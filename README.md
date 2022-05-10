@@ -45,19 +45,6 @@ This project gives you a cleaner operator experience for common tasks:
 
 ---
 
-## Project widgets
-
-These widgets are pinned to the **develop** branch and active workflow:
-
-- Docker build status (GitHub Actions)
-- Last commit on develop
-- Issues / stars / forks
-- GHCR image reference
-
-> If a widget looks stale, GitHub/Shield cache can take a few minutes to refresh.
-
----
-
 ## Screenshots
 
 ### Dashboard
