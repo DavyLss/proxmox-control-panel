@@ -15,13 +15,7 @@ import { Button } from "@/components/ui/button";
 
 type Frame = "hour" | "day" | "week";
 
-export function NodeRrdCharts({
-  ticket,
-  node,
-}: {
-  ticket: ProxmoxTicket;
-  node: string;
-}) {
+export function NodeRrdCharts({ ticket, node }: { ticket: ProxmoxTicket; node: string }) {
   const [tf, setTf] = useState<Frame>("hour");
   const { data } = useQuery({
     queryKey: ["node-rrd", node, tf],
@@ -55,12 +49,12 @@ export function NodeRrdCharts({
     return {
       t: label,
       tooltipLabel,
-    cpu: ((p.cpu ?? 0) * 100).toFixed(2),
-    iowait: ((p.iowait ?? 0) * 100).toFixed(2),
-    mem: ((p.memused ?? 0) / 1024 / 1024).toFixed(0),
-    netin: ((p.netin ?? 0) / 1024).toFixed(0),
-    netout: ((p.netout ?? 0) / 1024).toFixed(0),
-    load: Number(p.loadavg ?? 0).toFixed(2),
+      cpu: ((p.cpu ?? 0) * 100).toFixed(2),
+      iowait: ((p.iowait ?? 0) * 100).toFixed(2),
+      mem: ((p.memused ?? 0) / 1024 / 1024).toFixed(0),
+      netin: ((p.netin ?? 0) / 1024).toFixed(0),
+      netout: ((p.netout ?? 0) / 1024).toFixed(0),
+      load: Number(p.loadavg ?? 0).toFixed(2),
     };
   });
 
@@ -126,8 +120,8 @@ function Chart({
                 fontSize: 12,
               }}
               labelFormatter={(_, payload) =>
-                (payload?.[0]?.payload as { tooltipLabel?: string } | undefined)
-                  ?.tooltipLabel ?? String(_)
+                (payload?.[0]?.payload as { tooltipLabel?: string } | undefined)?.tooltipLabel ??
+                String(_)
               }
             />
             <Area

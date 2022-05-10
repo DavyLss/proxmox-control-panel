@@ -25,16 +25,13 @@ function NodesList() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Nœuds</h1>
         <p className="text-sm text-muted-foreground">
-          Cluster Proxmox — sélectionnez un nœud pour voir ses statistiques et
-          ouvrir une console.
+          Cluster Proxmox — sélectionnez un nœud pour voir ses statistiques et ouvrir une console.
         </p>
       </div>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">
-            {nodesQ.data?.length ?? 0} nœud(s)
-          </CardTitle>
+          <CardTitle className="text-base">{nodesQ.data?.length ?? 0} nœud(s)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -50,17 +47,13 @@ function NodesList() {
                     <Activity
                       className={
                         "h-4 w-4 " +
-                        (n.status === "online"
-                          ? "text-[color:var(--success)]"
-                          : "text-destructive")
+                        (n.status === "online" ? "text-[color:var(--success)]" : "text-destructive")
                       }
                     />
                     <span className="font-medium">{n.node}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge
-                      variant={n.status === "online" ? "default" : "destructive"}
-                    >
+                    <Badge variant={n.status === "online" ? "default" : "destructive"}>
                       {n.status}
                     </Badge>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -69,9 +62,7 @@ function NodesList() {
                 <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
                   <div>
                     <div>CPU</div>
-                    <div className="text-foreground font-medium">
-                      {pct(n.cpu)}
-                    </div>
+                    <div className="text-foreground font-medium">{pct(n.cpu)}</div>
                   </div>
                   <div>
                     <div>RAM</div>
@@ -81,16 +72,12 @@ function NodesList() {
                   </div>
                   <div>
                     <div>Uptime</div>
-                    <div className="text-foreground font-medium">
-                      {uptime(n.uptime)}
-                    </div>
+                    <div className="text-foreground font-medium">{uptime(n.uptime)}</div>
                   </div>
                 </div>
               </Link>
             ))}
-            {nodesQ.isLoading && (
-              <div className="text-sm text-muted-foreground">Chargement…</div>
-            )}
+            {nodesQ.isLoading && <div className="text-sm text-muted-foreground">Chargement…</div>}
           </div>
         </CardContent>
       </Card>

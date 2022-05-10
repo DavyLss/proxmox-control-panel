@@ -41,13 +41,14 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
-                const active =
-                  path === item.url || path.startsWith(item.url + "/");
+                const active = path === item.url || path.startsWith(item.url + "/");
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton asChild isActive={active}>
                       <Link
-                        to={item.url as "/dashboard" | "/guests" | "/nodes" | "/create" | "/backups"}
+                        to={
+                          item.url as "/dashboard" | "/guests" | "/nodes" | "/create" | "/backups"
+                        }
                         className="flex items-center gap-2"
                       >
                         <item.icon className="h-4 w-4" />

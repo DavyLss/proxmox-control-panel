@@ -1,18 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/proxmox/auth-context";
-import {
-  getQemuConfig,
-  guestAction,
-  guestStatus,
-  setQemuConfig,
-} from "@/lib/proxmox/client";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { getQemuConfig, guestAction, guestStatus, setQemuConfig } from "@/lib/proxmox/client";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Terminal } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,9 +16,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const search = z.object({
-  tab: z
-    .enum(["overview", "monitoring", "console", "backups"])
-    .default("overview"),
+  tab: z.enum(["overview", "monitoring", "console", "backups"]).default("overview"),
 });
 
 export const Route = createFileRoute("/_authenticated/guests/$type/$node/$vmid")({
@@ -52,8 +40,7 @@ function GuestDetail() {
   });
 
   const action = useMutation({
-    mutationFn: (a: "start" | "stop" | "shutdown" | "reboot") =>
-      guestAction(t, guest, a),
+    mutationFn: (a: "start" | "stop" | "shutdown" | "reboot") => guestAction(t, guest, a),
     onSuccess: (_d, a) => {
       toast.success(`${a} envoyé`);
       qc.invalidateQueries({ queryKey: ["status", node, type, vmid] });
@@ -171,10 +158,7 @@ function GuestDetail() {
               <Field label="Statut" value={s?.status ?? "—"} />
               <Field label="Uptime" value={uptime(s?.uptime)} />
               <Field label="CPU" value={`${pct(s?.cpu)} / ${s?.cpus ?? "?"}c`} />
-              <Field
-                label="Mémoire"
-                value={`${bytes(s?.mem)} / ${bytes(s?.maxmem)}`}
-              />
+              <Field label="Mémoire" value={`${bytes(s?.mem)} / ${bytes(s?.maxmem)}`} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -190,8 +174,8 @@ function GuestDetail() {
                 <div className="text-sm">
                   <div className="font-medium">Pas de port série configuré</div>
                   <div className="text-muted-foreground text-xs">
-                    xterm.js requiert <code>serial0: socket</code>. Ajoutez-le
-                    puis redémarrez la VM.
+                    xterm.js requiert <code>serial0: socket</code>. Ajoutez-le puis redémarrez la
+                    VM.
                   </div>
                 </div>
                 <Button
@@ -227,9 +211,7 @@ function GuestDetail() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-xs text-muted-foreground uppercase tracking-wide">
-        {label}
-      </div>
+      <div className="text-xs text-muted-foreground uppercase tracking-wide">{label}</div>
       <div className="text-base font-medium mt-0.5">{value}</div>
     </div>
   );

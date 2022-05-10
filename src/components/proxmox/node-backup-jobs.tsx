@@ -30,11 +30,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus, Trash2, Pencil, ChevronDown, Search } from "lucide-react";
@@ -76,13 +72,7 @@ const empty = (node: string): JobForm => ({
   pruneBackups: "keep-last=7",
 });
 
-export function NodeBackupJobs({
-  ticket,
-  node,
-}: {
-  ticket: ProxmoxTicket;
-  node: string;
-}) {
+export function NodeBackupJobs({ ticket, node }: { ticket: ProxmoxTicket; node: string }) {
   const t = ticket;
   const qc = useQueryClient();
   const jobsQ = useQuery({
@@ -187,9 +177,7 @@ export function NodeBackupJobs({
                 <Field label="Schedule (cron PVE)">
                   <Input
                     value={form.schedule}
-                    onChange={(e) =>
-                      setForm({ ...form, schedule: e.target.value })
-                    }
+                    onChange={(e) => setForm({ ...form, schedule: e.target.value })}
                     placeholder="02:00 ou sat 03:00"
                   />
                 </Field>
@@ -211,10 +199,7 @@ export function NodeBackupJobs({
                   </Select>
                 </Field>
                 <Field label="Mode">
-                  <Select
-                    value={form.mode}
-                    onValueChange={(v) => setForm({ ...form, mode: v })}
-                  >
+                  <Select value={form.mode} onValueChange={(v) => setForm({ ...form, mode: v })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -245,9 +230,7 @@ export function NodeBackupJobs({
               <Field label="Rétention (prune-backups)">
                 <Input
                   value={form.pruneBackups}
-                  onChange={(e) =>
-                    setForm({ ...form, pruneBackups: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, pruneBackups: e.target.value })}
                   placeholder="keep-last=7,keep-weekly=4"
                 />
               </Field>
@@ -272,9 +255,7 @@ export function NodeBackupJobs({
                   <VmidPicker
                     value={form.vmid}
                     onChange={(v) => setForm({ ...form, vmid: v })}
-                    guests={(guestsQ.data ?? []).filter(
-                      (g) => g.node === node && !g.template,
-                    )}
+                    guests={(guestsQ.data ?? []).filter((g) => g.node === node && !g.template)}
                   />
                 </Field>
               )}
@@ -288,9 +269,7 @@ export function NodeBackupJobs({
               <Field label="Commentaire">
                 <Input
                   value={form.comment}
-                  onChange={(e) =>
-                    setForm({ ...form, comment: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, comment: e.target.value })}
                 />
               </Field>
             </div>
@@ -298,10 +277,7 @@ export function NodeBackupJobs({
               <Button variant="outline" onClick={() => setOpen(false)}>
                 Annuler
               </Button>
-              <Button
-                onClick={() => save.mutate()}
-                disabled={save.isPending || !form.storage}
-              >
+              <Button onClick={() => save.mutate()} disabled={save.isPending || !form.storage}>
                 {save.isPending ? "…" : "Enregistrer"}
               </Button>
             </DialogFooter>
@@ -309,9 +285,7 @@ export function NodeBackupJobs({
         </Dialog>
       </CardHeader>
       <CardContent>
-        {jobsQ.isLoading && (
-          <div className="text-sm text-muted-foreground">Chargement…</div>
-        )}
+        {jobsQ.isLoading && <div className="text-sm text-muted-foreground">Chargement…</div>}
         {jobs.length === 0 && !jobsQ.isLoading && (
           <div className="text-sm text-muted-foreground py-6 text-center">
             Aucune tâche planifiée pour ce nœud.
@@ -336,13 +310,10 @@ export function NodeBackupJobs({
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground truncate">
-                  {j.schedule} · {j.storage} · {j.mode ?? "snapshot"} ·{" "}
-                  {j.compress ?? "zstd"}
+                  {j.schedule} · {j.storage} · {j.mode ?? "snapshot"} · {j.compress ?? "zstd"}
                   {j["prune-backups"] && ` · ${j["prune-backups"]}`}
                 </div>
-                {j.comment && (
-                  <div className="text-xs mt-0.5 truncate">{j.comment}</div>
-                )}
+                {j.comment && <div className="text-xs mt-0.5 truncate">{j.comment}</div>}
               </div>
               <div className="flex gap-1">
                 <Button size="sm" variant="ghost" onClick={() => openEdit(j)}>
@@ -352,8 +323,7 @@ export function NodeBackupJobs({
                   size="sm"
                   variant="ghost"
                   onClick={() => {
-                    if (confirm(`Supprimer la tâche ${j.id} ?`))
-                      remove.mutate(j.id);
+                    if (confirm(`Supprimer la tâche ${j.id} ?`)) remove.mutate(j.id);
                   }}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
@@ -367,13 +337,7 @@ export function NodeBackupJobs({
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs">{label}</Label>
@@ -401,11 +365,7 @@ function VmidPicker({
   const filtered = guests
     .filter((g) => {
       const q = search.toLowerCase();
-      return (
-        !q ||
-        String(g.vmid).includes(q) ||
-        (g.name ?? "").toLowerCase().includes(q)
-      );
+      return !q || String(g.vmid).includes(q) || (g.name ?? "").toLowerCase().includes(q);
     })
     .sort((a, b) => a.vmid - b.vmid);
 
@@ -419,11 +379,7 @@ function VmidPicker({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full justify-between font-normal"
-          type="button"
-        >
+        <Button variant="outline" className="w-full justify-between font-normal" type="button">
           <span className="truncate text-left">
             {selected.size === 0
               ? "Sélectionner des VM/CT…"

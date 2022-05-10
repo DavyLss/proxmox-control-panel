@@ -2,11 +2,7 @@ import { useEffect, useRef } from "react";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import "xterm/css/xterm.css";
-import {
-  openNodeTermProxy,
-  openTermProxy,
-  type ProxmoxTicket,
-} from "@/lib/proxmox/client";
+import { openNodeTermProxy, openTermProxy, type ProxmoxTicket } from "@/lib/proxmox/client";
 
 export function ConsoleTerminal({
   ticket,
@@ -36,8 +32,7 @@ export function ConsoleTerminal({
         term = new Terminal({
           cursorBlink: true,
           fontSize: 13,
-          fontFamily:
-            'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+          fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
           theme: {
             background: "#111827",
             foreground: "#e5e7eb",
@@ -60,8 +55,7 @@ export function ConsoleTerminal({
           else term!.write(new Uint8Array(ev.data as ArrayBuffer) as never);
         };
         ws.onclose = () => term?.writeln("\r\n\x1b[31mSession fermée.\x1b[0m");
-        ws.onerror = () =>
-          term?.writeln("\r\n\x1b[31mErreur de connexion WebSocket.\x1b[0m");
+        ws.onerror = () => term?.writeln("\r\n\x1b[31mErreur de connexion WebSocket.\x1b[0m");
 
         term.onData((data) => {
           if (ws?.readyState === WebSocket.OPEN) {

@@ -5,13 +5,7 @@ import type { ProxmoxTfaChallenge } from "@/lib/proxmox/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -104,11 +98,11 @@ function LoginPage() {
           <div className="mx-auto mb-3 grid place-items-center h-12 w-12 rounded-xl bg-primary/15 text-primary">
             <ServerCog className="h-6 w-6" />
           </div>
-          <CardTitle className="text-2xl font-semibold tracking-tight">
-            Proxmox Console
-          </CardTitle>
+          <CardTitle className="text-2xl font-semibold tracking-tight">Proxmox Console</CardTitle>
           <CardDescription>
-            {tfa ? "Saisissez votre code à deux facteurs" : "Connectez-vous avec votre compte Proxmox VE"}
+            {tfa
+              ? "Saisissez votre code à deux facteurs"
+              : "Connectez-vous avec votre compte Proxmox VE"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -117,10 +111,14 @@ function LoginPage() {
               <div className="space-y-1.5">
                 <Label>Méthode</Label>
                 <Select value={tfaKind} onValueChange={(v) => setTfaKind(v as "totp" | "recovery")}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {tfa.types.totp && <SelectItem value="totp">TOTP (application)</SelectItem>}
-                    {tfa.types.recovery && <SelectItem value="recovery">Clé de récupération</SelectItem>}
+                    {tfa.types.recovery && (
+                      <SelectItem value="recovery">Clé de récupération</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -138,7 +136,15 @@ function LoginPage() {
                 />
               </div>
               <div className="flex gap-2">
-                <Button type="button" variant="outline" className="flex-1" onClick={() => { setTfa(null); setTfaCode(""); }}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setTfa(null);
+                    setTfaCode("");
+                  }}
+                >
                   Retour
                 </Button>
                 <Button type="submit" className="flex-1" disabled={loading}>
@@ -147,58 +153,58 @@ function LoginPage() {
               </div>
             </form>
           ) : (
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="url">URL du serveur</Label>
-              <Input
-                id="url"
-                placeholder="https://pve.local:8006"
-                value={baseUrl}
-                onChange={(e) => setBaseUrl(e.target.value)}
-                required
-              />
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="col-span-2 space-y-1.5">
-                <Label htmlFor="user">Utilisateur</Label>
+            <form onSubmit={onSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="url">URL du serveur</Label>
                 <Input
-                  id="user"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="url"
+                  placeholder="https://pve.local:8006"
+                  value={baseUrl}
+                  onChange={(e) => setBaseUrl(e.target.value)}
                   required
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label>Realm</Label>
-                <Select value={realm} onValueChange={setRealm}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pam">pam</SelectItem>
-                    <SelectItem value="pve">pve</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="col-span-2 space-y-1.5">
+                  <Label htmlFor="user">Utilisateur</Label>
+                  <Input
+                    id="user"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Realm</Label>
+                  <Select value={realm} onValueChange={setRealm}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pam">pam</SelectItem>
+                      <SelectItem value="pve">pve</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="pwd">Mot de passe</Label>
-              <Input
-                id="pwd"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Connexion…" : "Se connecter"}
-            </Button>
-          </form>
+              <div className="space-y-1.5">
+                <Label htmlFor="pwd">Mot de passe</Label>
+                <Input
+                  id="pwd"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Connexion…" : "Se connecter"}
+              </Button>
+            </form>
           )}
           <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
-            Les identifiants sont envoyés directement à votre serveur Proxmox. Le
-            ticket d'authentification est conservé en session de votre navigateur.
+            Les identifiants sont envoyés directement à votre serveur Proxmox. Le ticket
+            d'authentification est conservé en session de votre navigateur.
           </p>
         </CardContent>
       </Card>

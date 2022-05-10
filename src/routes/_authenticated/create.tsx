@@ -22,20 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/create")({
@@ -132,9 +123,7 @@ function Create() {
     if (!isoStorage && storages.find((s) => s.content.includes("iso")))
       setIsoStorage(storages.find((s) => s.content.includes("iso"))!.storage);
     if (!tmplStorage && storages.find((s) => s.content.includes("vztmpl")))
-      setTmplStorage(
-        storages.find((s) => s.content.includes("vztmpl"))!.storage,
-      );
+      setTmplStorage(storages.find((s) => s.content.includes("vztmpl"))!.storage);
   }, [storagesQ.data, storage, isoStorage, tmplStorage]);
 
   const isoQ = useQuery({
@@ -234,12 +223,8 @@ function Create() {
   return (
     <div className="space-y-4 max-w-3xl">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Nouvelle machine
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Créer une VM QEMU ou un conteneur LXC
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">Nouvelle machine</h1>
+        <p className="text-sm text-muted-foreground">Créer une VM QEMU ou un conteneur LXC</p>
       </div>
 
       <Tabs value={type} onValueChange={(v) => setType(v as "qemu" | "lxc")}>
@@ -254,7 +239,10 @@ function Create() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
-              <Pick label="Nœud" value={node} onChange={setNode}
+              <Pick
+                label="Nœud"
+                value={node}
+                onChange={setNode}
                 options={(nodesQ.data ?? []).map((n) => ({ value: n.node, label: n.node }))}
               />
               <Field label="VMID">
@@ -295,9 +283,7 @@ function Create() {
                 value={storage}
                 onChange={setStorage}
                 options={(storagesQ.data ?? [])
-                  .filter((s) =>
-                    s.content.includes(type === "qemu" ? "images" : "rootdir"),
-                  )
+                  .filter((s) => s.content.includes(type === "qemu" ? "images" : "rootdir"))
                   .map((s) => ({ value: s.storage, label: s.storage }))}
               />
             </div>
@@ -331,8 +317,8 @@ function Create() {
                 <span>
                   <span className="font-medium">Console série (xterm.js)</span>
                   <span className="block text-xs text-muted-foreground">
-                    Ajoute <code>serial0: socket</code> à la VM pour activer la
-                    console web sans VNC.
+                    Ajoute <code>serial0: socket</code> à la VM pour activer la console web sans
+                    VNC.
                   </span>
                 </span>
               </label>
@@ -381,10 +367,7 @@ function Create() {
                   <CollapsibleTrigger asChild>
                     <Button variant="ghost" size="icon">
                       <ChevronDown
-                        className={
-                          "h-4 w-4 transition-transform " +
-                          (expert ? "rotate-180" : "")
-                        }
+                        className={"h-4 w-4 transition-transform " + (expert ? "rotate-180" : "")}
                       />
                     </Button>
                   </CollapsibleTrigger>
@@ -405,10 +388,7 @@ function Create() {
                       Démarrer au boot
                     </label>
                     <label className="flex items-center gap-2 text-sm">
-                      <Switch
-                        checked={startOnCreate}
-                        onCheckedChange={setStartOnCreate}
-                      />
+                      <Switch checked={startOnCreate} onCheckedChange={setStartOnCreate} />
                       Démarrer après création
                     </label>
                   </div>
@@ -513,10 +493,7 @@ function Create() {
                       />
                     </Field>
                     <Field label="Ordre de boot">
-                      <Input
-                        value={bootOrder}
-                        onChange={(e) => setBootOrder(e.target.value)}
-                      />
+                      <Input value={bootOrder} onChange={(e) => setBootOrder(e.target.value)} />
                     </Field>
                     {bios === "ovmf" && (
                       <Pick
@@ -595,17 +572,11 @@ function Create() {
                       />
                     </Field>
                     <Field label="Mount features (nfs;cifs)">
-                      <Input
-                        value={mountFeat}
-                        onChange={(e) => setMountFeat(e.target.value)}
-                      />
+                      <Input value={mountFeat} onChange={(e) => setMountFeat(e.target.value)} />
                     </Field>
                     <div className="flex flex-wrap items-end gap-6 pb-2">
                       <label className="flex items-center gap-2 text-sm">
-                        <Switch
-                          checked={unprivileged}
-                          onCheckedChange={setUnprivileged}
-                        />
+                        <Switch checked={unprivileged} onCheckedChange={setUnprivileged} />
                         Non privilégié
                       </label>
                       <label className="flex items-center gap-2 text-sm">
@@ -682,9 +653,7 @@ function Pick({
         </SelectTrigger>
         <SelectContent>
           {options.length === 0 && (
-            <div className="px-2 py-1.5 text-xs text-muted-foreground">
-              Aucune option
-            </div>
+            <div className="px-2 py-1.5 text-xs text-muted-foreground">Aucune option</div>
           )}
           {options.map((o) => (
             <SelectItem key={o.value} value={o.value}>

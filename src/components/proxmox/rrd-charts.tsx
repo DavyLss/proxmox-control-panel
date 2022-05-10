@@ -52,10 +52,10 @@ export function RrdCharts({
     return {
       t: label,
       tooltipLabel,
-    cpu: ((p.cpu ?? 0) * 100).toFixed(2),
-    mem: ((p.mem ?? 0) / 1024 / 1024).toFixed(0),
-    netin: ((p.netin ?? 0) / 1024).toFixed(0),
-    netout: ((p.netout ?? 0) / 1024).toFixed(0),
+      cpu: ((p.cpu ?? 0) * 100).toFixed(2),
+      mem: ((p.mem ?? 0) / 1024 / 1024).toFixed(0),
+      netin: ((p.netin ?? 0) / 1024).toFixed(0),
+      netout: ((p.netout ?? 0) / 1024).toFixed(0),
     };
   });
 
@@ -77,7 +77,12 @@ export function RrdCharts({
         <ChartCard title="CPU (%)" data={series} dataKey="cpu" color="var(--chart-1)" />
         <ChartCard title="Mémoire (Mio)" data={series} dataKey="mem" color="var(--chart-3)" />
         <ChartCard title="Réseau in (Kio/s)" data={series} dataKey="netin" color="var(--chart-2)" />
-        <ChartCard title="Réseau out (Kio/s)" data={series} dataKey="netout" color="var(--chart-4)" />
+        <ChartCard
+          title="Réseau out (Kio/s)"
+          data={series}
+          dataKey="netout"
+          color="var(--chart-4)"
+        />
       </div>
     </div>
   );
@@ -119,8 +124,8 @@ function ChartCard({
                 fontSize: 12,
               }}
               labelFormatter={(_, payload) =>
-                (payload?.[0]?.payload as { tooltipLabel?: string } | undefined)
-                  ?.tooltipLabel ?? String(_)
+                (payload?.[0]?.payload as { tooltipLabel?: string } | undefined)?.tooltipLabel ??
+                String(_)
               }
             />
             <Area

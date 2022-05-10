@@ -29,9 +29,7 @@ function Stat({
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <div className="text-xs text-muted-foreground uppercase tracking-wide">
-            {label}
-          </div>
+          <div className="text-xs text-muted-foreground uppercase tracking-wide">{label}</div>
           <div className="text-2xl font-semibold mt-0.5">{value}</div>
           {hint && <div className="text-xs text-muted-foreground mt-0.5">{hint}</div>}
         </div>
@@ -59,8 +57,7 @@ function Dashboard() {
   const running = guests.filter((g) => g.status === "running").length;
   const totalCpu = nodes.reduce((a, n) => a + (n.maxcpu ?? 0), 0);
   const usedCpu =
-    nodes.reduce((a, n) => a + (n.cpu ?? 0) * (n.maxcpu ?? 0), 0) /
-    Math.max(1, totalCpu);
+    nodes.reduce((a, n) => a + (n.cpu ?? 0) * (n.maxcpu ?? 0), 0) / Math.max(1, totalCpu);
   const totalMem = nodes.reduce((a, n) => a + (n.maxmem ?? 0), 0);
   const usedMem = nodes.reduce((a, n) => a + (n.mem ?? 0), 0);
 
@@ -68,9 +65,7 @@ function Dashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Vue d'ensemble</h1>
-        <p className="text-sm text-muted-foreground">
-          État global du cluster Proxmox
-        </p>
+        <p className="text-sm text-muted-foreground">État global du cluster Proxmox</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -117,16 +112,12 @@ function Dashboard() {
                     <Activity
                       className={
                         "h-4 w-4 " +
-                        (n.status === "online"
-                          ? "text-[color:var(--success)]"
-                          : "text-destructive")
+                        (n.status === "online" ? "text-[color:var(--success)]" : "text-destructive")
                       }
                     />
                     <span className="font-medium">{n.node}</span>
                   </div>
-                  <Badge
-                    variant={n.status === "online" ? "default" : "destructive"}
-                  >
+                  <Badge variant={n.status === "online" ? "default" : "destructive"}>
                     {n.status}
                   </Badge>
                 </div>
@@ -143,20 +134,14 @@ function Dashboard() {
                   </div>
                   <div>
                     <div>Uptime</div>
-                    <div className="text-foreground font-medium">
-                      {uptime(n.uptime)}
-                    </div>
+                    <div className="text-foreground font-medium">{uptime(n.uptime)}</div>
                   </div>
                 </div>
               </Link>
             ))}
-            {nodesQ.isLoading && (
-              <div className="text-sm text-muted-foreground">Chargement…</div>
-            )}
+            {nodesQ.isLoading && <div className="text-sm text-muted-foreground">Chargement…</div>}
             {nodesQ.error && (
-              <div className="text-sm text-destructive">
-                {(nodesQ.error as Error).message}
-              </div>
+              <div className="text-sm text-destructive">{(nodesQ.error as Error).message}</div>
             )}
           </div>
         </CardContent>

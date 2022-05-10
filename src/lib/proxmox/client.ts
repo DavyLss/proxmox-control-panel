@@ -88,7 +88,9 @@ export async function login(c: ProxmoxCredentials): Promise<LoginResult> {
           webauthn: !!payload.webauthn,
           yubico: !!payload.yubico,
         };
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     return {
       kind: "tfa",
@@ -315,10 +317,7 @@ export async function guestStatus(
   t: ProxmoxTicket,
   g: { node: string; type: "qemu" | "lxc"; vmid: number },
 ) {
-  return api<Record<string, unknown>>(
-    t,
-    `/nodes/${g.node}/${g.type}/${g.vmid}/status/current`,
-  );
+  return api<Record<string, unknown>>(t, `/nodes/${g.node}/${g.type}/${g.vmid}/status/current`);
 }
 
 export async function guestRrd(
@@ -366,19 +365,11 @@ export async function listTemplates(t: ProxmoxTicket, node: string, storage: str
   );
 }
 
-export async function createQemu(
-  t: ProxmoxTicket,
-  node: string,
-  payload: Record<string, unknown>,
-) {
+export async function createQemu(t: ProxmoxTicket, node: string, payload: Record<string, unknown>) {
   return api(t, `/nodes/${node}/qemu`, { method: "POST", body: payload });
 }
 
-export async function createLxc(
-  t: ProxmoxTicket,
-  node: string,
-  payload: Record<string, unknown>,
-) {
+export async function createLxc(t: ProxmoxTicket, node: string, payload: Record<string, unknown>) {
   return api(t, `/nodes/${node}/lxc`, { method: "POST", body: payload });
 }
 
@@ -482,11 +473,7 @@ export function hasPermission(
 
 /* ---------- QEMU config ---------- */
 
-export async function getQemuConfig(
-  t: ProxmoxTicket,
-  node: string,
-  vmid: number,
-) {
+export async function getQemuConfig(t: ProxmoxTicket, node: string, vmid: number) {
   return api<Record<string, unknown>>(t, `/nodes/${node}/qemu/${vmid}/config`);
 }
 
@@ -513,17 +500,9 @@ export interface BackupVolume {
   notes?: string;
 }
 
-export async function listBackups(
-  t: ProxmoxTicket,
-  node: string,
-  storage: string,
-  vmid?: number,
-) {
+export async function listBackups(t: ProxmoxTicket, node: string, storage: string, vmid?: number) {
   const q = vmid ? `&vmid=${vmid}` : "";
-  return api<BackupVolume[]>(
-    t,
-    `/nodes/${node}/storage/${storage}/content?content=backup${q}`,
-  );
+  return api<BackupVolume[]>(t, `/nodes/${node}/storage/${storage}/content?content=backup${q}`);
 }
 
 export async function listBackupStorages(t: ProxmoxTicket, node: string) {
@@ -553,17 +532,10 @@ export async function vzdumpNow(
   });
 }
 
-export async function deleteBackup(
-  t: ProxmoxTicket,
-  node: string,
-  storage: string,
-  volid: string,
-) {
-  return api(
-    t,
-    `/nodes/${node}/storage/${storage}/content/${encodeURIComponent(volid)}`,
-    { method: "DELETE" },
-  );
+export async function deleteBackup(t: ProxmoxTicket, node: string, storage: string, volid: string) {
+  return api(t, `/nodes/${node}/storage/${storage}/content/${encodeURIComponent(volid)}`, {
+    method: "DELETE",
+  });
 }
 
 export interface BackupJob {
@@ -585,10 +557,7 @@ export async function listBackupJobs(t: ProxmoxTicket) {
   return api<BackupJob[]>(t, `/cluster/backup`);
 }
 
-export async function createBackupJob(
-  t: ProxmoxTicket,
-  payload: Record<string, unknown>,
-) {
+export async function createBackupJob(t: ProxmoxTicket, payload: Record<string, unknown>) {
   return api(t, `/cluster/backup`, { method: "POST", body: payload });
 }
 

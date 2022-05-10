@@ -49,21 +49,27 @@ This project gives you a cleaner operator experience for common tasks:
 ## Screenshots
 
 ### Dashboard
+
 ![Dashboard](docs/images/dashboard.jpg)
 
 ### Guests list
+
 ![Guests list](docs/images/guests-list.jpg)
 
 ### Node monitoring
+
 ![Node monitoring](docs/images/node-monitoring.jpg)
 
 ### Create LXC
+
 ![Create LXC](docs/images/create-lxc.jpg)
 
 ### Create QEMU VM
+
 ![Create QEMU VM](docs/images/create-qemu.jpg)
 
 ### Backups
+
 ![Backups](docs/images/backups.jpg)
 
 ---

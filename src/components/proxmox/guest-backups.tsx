@@ -37,8 +37,7 @@ export function GuestBackups({
   });
 
   useEffect(() => {
-    if (!storage && storagesQ.data?.length)
-      setStorage(storagesQ.data[0].storage);
+    if (!storage && storagesQ.data?.length) setStorage(storagesQ.data[0].storage);
   }, [storagesQ.data, storage]);
 
   const backupsQ = useQuery({
@@ -49,8 +48,7 @@ export function GuestBackups({
   });
 
   const run = useMutation({
-    mutationFn: () =>
-      vzdumpNow(t, guest.node, { vmid: guest.vmid, storage }),
+    mutationFn: () => vzdumpNow(t, guest.node, { vmid: guest.vmid, storage }),
     onSuccess: () => {
       toast.success("Sauvegarde lancée");
       qc.invalidateQueries({ queryKey: ["backups"] });
@@ -84,20 +82,14 @@ export function GuestBackups({
               ))}
             </SelectContent>
           </Select>
-          <Button
-            size="sm"
-            onClick={() => run.mutate()}
-            disabled={run.isPending || !storage}
-          >
+          <Button size="sm" onClick={() => run.mutate()} disabled={run.isPending || !storage}>
             <Save className="h-4 w-4 mr-1.5" />
             Sauvegarder maintenant
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        {backupsQ.isLoading && (
-          <div className="text-sm text-muted-foreground">Chargement…</div>
-        )}
+        {backupsQ.isLoading && <div className="text-sm text-muted-foreground">Chargement…</div>}
         {!backupsQ.isLoading && (backupsQ.data ?? []).length === 0 && (
           <div className="text-sm text-muted-foreground py-6 text-center">
             Aucune sauvegarde trouvée pour cette VM/CT sur ce stockage.
@@ -113,13 +105,9 @@ export function GuestBackups({
                 className="flex items-center justify-between rounded-md border border-border/60 p-3"
               >
                 <div className="min-w-0">
-                  <div className="text-sm font-medium truncate">
-                    {b.volid.split("/").pop()}
-                  </div>
+                  <div className="text-sm font-medium truncate">{b.volid.split("/").pop()}</div>
                   <div className="text-xs text-muted-foreground">
-                    {b.ctime
-                      ? new Date(b.ctime * 1000).toLocaleString()
-                      : "—"}
+                    {b.ctime ? new Date(b.ctime * 1000).toLocaleString() : "—"}
                     {" · "}
                     {bytes(b.size)}
                     {b.format ? ` · ${b.format}` : ""}
@@ -129,8 +117,7 @@ export function GuestBackups({
                   size="sm"
                   variant="ghost"
                   onClick={() => {
-                    if (confirm("Supprimer cette sauvegarde ?"))
-                      remove.mutate(b.volid);
+                    if (confirm("Supprimer cette sauvegarde ?")) remove.mutate(b.volid);
                   }}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />

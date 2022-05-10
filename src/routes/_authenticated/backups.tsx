@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/proxmox/auth-context";
-import {
-  deleteBackupJob,
-  listBackupJobs,
-  listNodes,
-} from "@/lib/proxmox/client";
+import { deleteBackupJob, listBackupJobs, listNodes } from "@/lib/proxmox/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,15 +61,11 @@ function Backups() {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">
-            Toutes les tâches ({jobsQ.data?.length ?? 0})
-          </CardTitle>
+          <CardTitle className="text-base">Toutes les tâches ({jobsQ.data?.length ?? 0})</CardTitle>
         </CardHeader>
         <CardContent>
           {(jobsQ.data ?? []).length === 0 && (
-            <div className="text-sm text-muted-foreground py-4 text-center">
-              Aucune tâche.
-            </div>
+            <div className="text-sm text-muted-foreground py-4 text-center">Aucune tâche.</div>
           )}
           <div className="space-y-2">
             {(jobsQ.data ?? []).map((j) => (
@@ -95,8 +87,7 @@ function Backups() {
                     )}
                   </div>
                   <div className="text-xs text-muted-foreground truncate">
-                    {j.schedule} · {j.storage} · {j.mode ?? "snapshot"} ·{" "}
-                    {j.compress ?? "zstd"}
+                    {j.schedule} · {j.storage} · {j.mode ?? "snapshot"} · {j.compress ?? "zstd"}
                     {j["prune-backups"] && ` · ${j["prune-backups"]}`}
                   </div>
                 </div>
@@ -131,9 +122,7 @@ function Backups() {
             </SelectContent>
           </Select>
         </CardHeader>
-        <CardContent>
-          {node && <NodeBackupJobs ticket={t} node={node} />}
-        </CardContent>
+        <CardContent>{node && <NodeBackupJobs ticket={t} node={node} />}</CardContent>
       </Card>
     </div>
   );

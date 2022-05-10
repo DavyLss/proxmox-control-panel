@@ -7,21 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Play,
-  Square,
-  RotateCcw,
-  Power,
-  Terminal,
-  ExternalLink,
-  Search,
-} from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Play, Square, RotateCcw, Power, Terminal, ExternalLink, Search } from "lucide-react";
 import { bytes, pct, uptime } from "@/lib/proxmox/format";
 import { toast } from "sonner";
 
@@ -43,13 +30,8 @@ function Guests() {
   });
 
   const action = useMutation({
-    mutationFn: ({
-      g,
-      a,
-    }: {
-      g: PveGuest;
-      a: "start" | "stop" | "shutdown" | "reboot";
-    }) => guestAction(t, g, a),
+    mutationFn: ({ g, a }: { g: PveGuest; a: "start" | "stop" | "shutdown" | "reboot" }) =>
+      guestAction(t, g, a),
     onSuccess: (_d, v) => {
       toast.success(`${v.a} envoyé à ${v.g.name ?? v.g.vmid}`);
       qc.invalidateQueries({ queryKey: ["guests"] });
@@ -60,9 +42,7 @@ function Guests() {
   const guests = (data ?? [])
     .filter((g) => typeFilter === "all" || g.type === typeFilter)
     .filter((g) =>
-      `${g.vmid} ${g.name ?? ""} ${g.node}`
-        .toLowerCase()
-        .includes(filter.toLowerCase()),
+      `${g.vmid} ${g.name ?? ""} ${g.node}`.toLowerCase().includes(filter.toLowerCase()),
     )
     .sort((a, b) => a.vmid - b.vmid);
 
@@ -71,9 +51,7 @@ function Guests() {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Machines</h1>
-          <p className="text-sm text-muted-foreground">
-            VMs QEMU et conteneurs LXC du cluster
-          </p>
+          <p className="text-sm text-muted-foreground">VMs QEMU et conteneurs LXC du cluster</p>
         </div>
         <Button asChild>
           <Link to="/create">Nouvelle machine</Link>
@@ -167,17 +145,13 @@ function Guests() {
                         <span
                           className={
                             "inline-flex items-center gap-1.5 text-xs font-medium " +
-                            (running
-                              ? "text-[color:var(--success)]"
-                              : "text-muted-foreground")
+                            (running ? "text-[color:var(--success)]" : "text-muted-foreground")
                           }
                         >
                           <span
                             className={
                               "h-2 w-2 rounded-full " +
-                              (running
-                                ? "bg-[color:var(--success)]"
-                                : "bg-muted-foreground/50")
+                              (running ? "bg-[color:var(--success)]" : "bg-muted-foreground/50")
                             }
                           />
                           {g.status}
@@ -195,34 +169,26 @@ function Guests() {
                               label="Démarrer"
                               icon={Play}
                               disabled={running || action.isPending}
-                              onClick={() =>
-                                action.mutate({ g, a: "start" })
-                              }
+                              onClick={() => action.mutate({ g, a: "start" })}
                             />
                             <ActionBtn
                               label="Redémarrer"
                               icon={RotateCcw}
                               disabled={!running || action.isPending}
-                              onClick={() =>
-                                action.mutate({ g, a: "reboot" })
-                              }
+                              onClick={() => action.mutate({ g, a: "reboot" })}
                             />
                             <ActionBtn
                               label="Arrêt propre"
                               icon={Power}
                               disabled={!running || action.isPending}
-                              onClick={() =>
-                                action.mutate({ g, a: "shutdown" })
-                              }
+                              onClick={() => action.mutate({ g, a: "shutdown" })}
                             />
                             <ActionBtn
                               label="Forcer l'arrêt"
                               icon={Square}
                               variant="destructive"
                               disabled={!running || action.isPending}
-                              onClick={() =>
-                                action.mutate({ g, a: "stop" })
-                              }
+                              onClick={() => action.mutate({ g, a: "stop" })}
                             />
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -273,12 +239,7 @@ function ActionBtn({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button
-          size="icon"
-          variant={variant}
-          onClick={onClick}
-          disabled={disabled}
-        >
+        <Button size="icon" variant={variant} onClick={onClick} disabled={disabled}>
           <Icon className="h-4 w-4" />
         </Button>
       </TooltipTrigger>
