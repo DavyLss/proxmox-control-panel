@@ -1,17 +1,17 @@
 # Proxmox Control Panel
 
 <p align="center">
-  <a href="https://github.com/DavyLss/proxmox-control-panel"><img src="https://img.shields.io/badge/Repository-DavyLss%2Fproxmox--control--panel-181717?style=for-the-badge&logo=github" alt="Repository" /></a>
-  <img src="https://img.shields.io/badge/Default%20Branch-develop-2563eb?style=for-the-badge&logo=git" alt="Default branch develop" />
-  <img src="https://img.shields.io/badge/Runtime-Docker%20%7C%20Node-0ea5e9?style=for-the-badge" alt="Runtime" />
-  <img src="https://img.shields.io/badge/UI-React%20%2B%20TanStack-111827?style=for-the-badge" alt="UI stack" />
+  <a href="https://github.com/DavyLss/proxmox-control-panel"><img src=".github/badges/repository.svg" alt="Repository" /></a>
+  <img src=".github/badges/stars.svg" alt="Stars" />
+  <img src=".github/badges/forks.svg" alt="Forks" />
+  <img src=".github/badges/issues.svg" alt="Open issues" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/DavyLss/proxmox-control-panel/actions/workflows/docker-image.yml"><img src="https://img.shields.io/github/actions/workflow/status/DavyLss/proxmox-control-panel/docker-image.yml?branch=develop&style=for-the-badge&label=Docker%20Build" alt="Docker workflow status" /></a>
-  <a href="https://github.com/DavyLss/proxmox-control-panel/pkgs/container/proxmox-control-panel"><img src="https://img.shields.io/badge/GHCR-ghcr.io%2Fdavylss%2Fproxmox--control--panel-2ea44f?style=for-the-badge" alt="GHCR image" /></a>
-  <img src="https://img.shields.io/badge/Branch-develop-blue?style=for-the-badge" alt="Default branch develop" />
-  <img src="https://img.shields.io/badge/Stack-React%20%2B%20TanStack%20Start%20%2B%20TypeScript-111827?style=for-the-badge" alt="Tech stack" />
+  <a href="https://github.com/DavyLss/proxmox-control-panel/actions/workflows/docker-image.yml"><img src=".github/badges/docker-build.svg" alt="Docker workflow status" /></a>
+  <img src=".github/badges/default-branch.svg" alt="Default branch develop" />
+  <img src=".github/badges/runtime.svg" alt="Runtime" />
+  <img src=".github/badges/ui-stack.svg" alt="UI stack" />
 </p>
 
 <p align="center">
