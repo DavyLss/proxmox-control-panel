@@ -11,13 +11,21 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthLayout() {
-  const { isAuthenticated, signOut, ticket } = useAuth();
+  const { isAuthenticated, isRestored, signOut, ticket } = useAuth();
 
   useEffect(() => {
-    if (!isAuthenticated && typeof window !== "undefined") {
+    if (isRestored && !isAuthenticated && typeof window !== "undefined") {
       window.location.replace("/login");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isRestored]);
+
+  if (!isRestored) {
+    return (
+      <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">
+        Restauration de la session…
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (

@@ -14,6 +14,7 @@ function getStorage() {
 interface AuthContextValue {
   ticket: ProxmoxTicket | null;
   isAuthenticated: boolean;
+  isRestored: boolean;
   signIn: (c: ProxmoxCredentials) => Promise<{ tfa?: ProxmoxTfaChallenge }>;
   completeTfa: (c: ProxmoxTfaChallenge, code: string, kind?: "totp" | "recovery") => Promise<void>;
   signOut: () => void;
@@ -23,6 +24,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [ticket, setTicket] = useState<ProxmoxTicket | null>(null);
+  const [isRestored, setIsRestored] = useState(false);
 
   useEffect(() => {
     try {
@@ -34,6 +36,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       else storage?.removeItem(STORAGE_KEY);
     } catch {
       /* ignore */
+    } finally {
+      setIsRestored(true);
     }
   }, []);
 
@@ -82,8 +86,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ ticket, isAuthenticated: isTicketValid(ticket), signIn, completeTfa, signOut }),
-    [ticket, signIn, completeTfa, signOut],
+    () => ({
+      ticket,
+      isAuthenticated: isTicketValid(ticket),
+      isRestored,
+      signIn,
+      completeTfa,
+      signOut,
+    }),
+    [ticket, isRestored, signIn, completeTfa, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

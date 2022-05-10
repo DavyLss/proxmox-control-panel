@@ -27,7 +27,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const { signIn, completeTfa, isAuthenticated } = useAuth();
+  const { signIn, completeTfa, isAuthenticated, isRestored } = useAuth();
   const [baseUrl, setBaseUrl] = useState("https://192.168.1.10:8006");
   const [username, setUsername] = useState("root");
   const [realm, setRealm] = useState("pam");
@@ -44,10 +44,10 @@ function LoginPage() {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated && typeof window !== "undefined") {
+    if (isRestored && isAuthenticated && typeof window !== "undefined") {
       window.location.replace("/dashboard");
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isRestored]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,6 +88,14 @@ function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (!isRestored) {
+    return (
+      <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">
+        Restauration de la session…
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full grid place-items-center px-4 bg-gradient-to-br from-background via-background to-accent/30">
