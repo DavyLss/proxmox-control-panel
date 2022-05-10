@@ -106,6 +106,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.process = window.process || { env: {} }; Object.assign(window.process.env, { TSS_SERVER_FN_BASE: "/_serverFn/", TSS_ROUTER_BASEPATH: "/", TSS_DEV_SERVER: "true", TSS_DEV_SSR_STYLES_ENABLED: "true", TSS_DEV_SSR_STYLES_BASEPATH: "/" });`,
+          }}
+        />
       </head>
       <body>
         {children}
