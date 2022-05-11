@@ -383,7 +383,7 @@ function VmidPicker({
           <span className="truncate text-left">
             {selected.size === 0
               ? "Sélectionner des VM/CT…"
-              : `${selected.size} sélectionné(s) — ${Array.from(selected).join(", ")}`}
+              : `${selected.size} sélectionné(s) - ${Array.from(selected).join(", ")}`}
           </span>
           <ChevronDown className="h-4 w-4 opacity-60 shrink-0 ml-2" />
         </Button>

@@ -25,7 +25,7 @@ function NodesList() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Nœuds</h1>
         <p className="text-sm text-muted-foreground">
-          Cluster Proxmox — sélectionnez un nœud pour voir ses statistiques et ouvrir une console.
+           Cluster Proxmox - sélectionnez un nœud pour voir ses statistiques et ouvrir une console.
         </p>
       </div>
 
