@@ -30,10 +30,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ssh -n \
+          ssh \
             -i /home/actions/.ssh/id_ed25519_proxmox-control-panel_deploy \
             -o BatchMode=yes \
             -o RequestTTY=no \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
-            deployer@10.10.10.126
+            deployer@10.10.10.126 \
+            'sudo /usr/local/bin/deploy-proxmox-control-panel.sh'
