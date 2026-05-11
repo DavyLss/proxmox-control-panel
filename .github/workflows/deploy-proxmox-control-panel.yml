@@ -1,7 +1,11 @@
 name: Deploy proxmox-control-panel
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - Build and push proxmox-control-panel image
+    types:
+      - completed
     branches:
       - develop
   workflow_dispatch:
@@ -12,6 +16,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     name: Deploy to LXC 126
     runs-on:
       - self-hosted
