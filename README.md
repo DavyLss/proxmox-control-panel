@@ -34,7 +34,6 @@ What this interface offers :
 - 1-click web console access
 - Centralized view of backups and jobs
 
----
 
 ## Features
 
@@ -45,7 +44,6 @@ What this interface offers :
 - **Backup management** : Browse and manage your vzdump backup jobs, launch on-demand backups
 - **Web console** : 1-click terminal access for nodes and guests (via xterm.js + WebSocket)
 
----
 
 ## Screenshots
 
@@ -153,7 +151,6 @@ What this diagram highlights:
 - **Console is the special case**: `termproxy` + websocket flow needs extra server-side handling.
 - **Infra matters a lot**: Cloudflare, CORS, TLS and websocket passthrough are part of the architecture, not just deployment details.
 
----
 
 ## Quick start
 
@@ -181,7 +178,6 @@ npm run build
 npm run start
 ```
 
----
 
 ## Docker image (GHCR)
 
@@ -199,7 +195,6 @@ services:
       - "8080:8080"
 ```
 
----
 
 ## Deployment model
 
@@ -220,7 +215,6 @@ docker compose pull --ignore-buildable || true
 docker compose up -d --build --remove-orphans
 ```
 
----
 
 ## Proxmox + Cloudflare prerequisites
 
@@ -239,7 +233,6 @@ If you route Proxmox through a Cloudflare Worker, ensure it handles:
 - websocket upgrade passthrough
 - cookie forwarding/rewriting compatibility for console paths
 
----
 
 ## Authentication notes
 
@@ -248,7 +241,6 @@ If you route Proxmox through a Cloudflare Worker, ensure it handles:
 - Auto-refresh is used to keep sessions valid
 - TOTP/recovery support works when Proxmox 2FA is enabled
 
----
 
 ## Tech stack
 
@@ -260,7 +252,6 @@ If you route Proxmox through a Cloudflare Worker, ensure it handles:
 - **Container:** Docker
 - **Registry:** GHCR
 
----
 
 ## Project structure
 
@@ -275,7 +266,6 @@ Dockerfile               # Container image build
 vite.config.ts           # Vite + host allowlist
 ```
 
----
 
 ## Useful commands
 
@@ -287,7 +277,6 @@ npm run lint
 npm run format
 ```
 
----
 
 ## Troubleshooting
 
@@ -303,7 +292,7 @@ Check websocket upgrade path, cookie forwarding, Proxmox permissions, and guest/
 
 Add the hostname to `vite.server.allowedHosts` in `vite.config.ts`.
 
----
+
 
 ## Security recommendations
 
@@ -311,7 +300,6 @@ Add the hostname to `vite.server.allowedHosts` in `vite.config.ts`.
 - Use least-privilege Proxmox accounts/tokens
 - Review Cloudflare Worker behavior carefully when handling auth/cookies
 
----
 
 ## Branch policy
 
@@ -319,7 +307,7 @@ Add the hostname to `vite.server.allowedHosts` in `vite.config.ts`.
 - **Production updates:** from validated commits on `develop`
 - **Deleted branch:** `main`
 
----
+
 
 ## Links
 
