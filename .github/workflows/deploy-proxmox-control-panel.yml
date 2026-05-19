@@ -36,5 +36,5 @@ jobs:
             -o RequestTTY=no \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
-            deployer@10.10.10.126 \
+            deployer@${{ vars.DEPLOY_HOST || '10.10.10.126' }} \
             'sudo /usr/local/bin/deploy-proxmox-control-panel.sh'
