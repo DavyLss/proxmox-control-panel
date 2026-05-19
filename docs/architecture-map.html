@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proxmox Control Panel — Architecture Map</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121933;
+      --panel-2: #172142;
+      --muted: #8ea0c7;
+      --text: #edf2ff;
+      --line: #30426f;
+      --accent: #7dd3fc;
+      --accent-2: #a78bfa;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --danger: #fb7185;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: linear-gradient(180deg, #0a1021, #0d1430 40%, #0a1021);
+      color: var(--text);
+    }
+    a { color: inherit; }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(700px, 1.4fr) minmax(320px, 0.8fr);
+      min-height: 100vh;
+    }
+    .left {
+      padding: 24px;
+      border-right: 1px solid rgba(255,255,255,.08);
+    }
+    .right {
+      padding: 24px;
+      background: rgba(8, 12, 27, .45);
+      backdrop-filter: blur(8px);
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+    .sub {
+      color: var(--muted);
+      margin-bottom: 18px;
+      max-width: 80ch;
+    }
+    .legend, .summary, .details {
+      background: rgba(18, 25, 51, .78);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.24);
+    }
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: #d9e5ff;
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.03);
+    }
+    .graph-wrap {
+      position: relative;
+      margin-top: 16px;
+      border-radius: 22px;
+      overflow: hidden;
+      background: radial-gradient(circle at top left, rgba(125,211,252,.08), transparent 28%),
+                  radial-gradient(circle at bottom right, rgba(167,139,250,.10), transparent 28%),
+                  rgba(11, 16, 32, .82);
+      border: 1px solid rgba(255,255,255,.08);
+      min-height: 980px;
+    }
+    svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .group-label {
+      position: absolute;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: rgba(11,16,32,.9);
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .node {
+      position: absolute;
+      width: 215px;
+      min-height: 116px;
+      background: linear-gradient(180deg, rgba(23,33,66,.95), rgba(15,22,44,.96));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      box-shadow: 0 10px 24px rgba(0,0,0,.22);
+    }
+    .node:hover, .node.active {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 12px 28px rgba(0,0,0,.34), 0 0 0 1px rgba(125,211,252,.18) inset;
+    }
+    .node small {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      color: #c7d6ff;
+      font-size: 11px;
+      margin-bottom: 10px;
+    }
+    .node h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+    .node p {
+      margin: 0;
+      color: #b8c8ef;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .summary h2, .details h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    .summary ul, .details ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: #d6e1ff;
+    }
+    .summary li, .details li { margin: 7px 0; }
+    .details .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .details code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      background: rgba(255,255,255,.06);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .callout {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(125,211,252,.08);
+      border: 1px solid rgba(125,211,252,.18);
+      color: #dff6ff;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .footer {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .left { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <section class="left">
+      <h1>Proxmox Control Panel — Architecture Map</h1>
+      <div class="sub">
+        Interactive reading map for the <strong>proxmox-control-panel</strong> repo. Click a block to inspect its role,
+        key files, and what it talks to.
+      </div>
+
+      <div class="legend">
+        <span class="pill">Browser-first TanStack Start app</span>
+        <span class="pill">Direct Proxmox API + ticket auth</span>
+        <span class="pill">Special server relay for termproxy / websocket console</span>
+        <span class="pill">Dockerized deploy, often fronted by Cloudflare</span>
+      </div>
+
+      <div class="graph-wrap" id="graph">
+        <div class="group-label" style="left: 26px; top: 20px;">User interface</div>
+        <div class="group-label" style="left: 298px; top: 20px;">State & auth</div>
+        <div class="group-label" style="left: 556px; top: 20px;">Proxmox integration</div>
+        <div class="group-label" style="left: 42px; top: 690px;">Deploy & edge</div>
+
+        <svg viewBox="0 0 1000 980" preserveAspectRatio="none">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L9,3 z" fill="#7dd3fc"></path>
+            </marker>
+          </defs>
+          <g stroke="#4f6aa3" stroke-width="2" fill="none" opacity="0.95" marker-end="url(#arrow)">
+            <path d="M220 175 C300 175, 300 175, 380 175" />
+            <path d="M220 370 C300 370, 300 175, 380 175" />
+            <path d="M220 565 C300 565, 300 175, 380 175" />
+            <path d="M380 175 C480 175, 490 175, 590 175" />
+            <path d="M380 175 C480 175, 490 385, 590 385" />
+            <path d="M380 175 C480 175, 490 595, 590 595" />
+            <path d="M800 175 C865 175, 865 175, 930 175" />
+            <path d="M800 385 C865 385, 865 175, 930 175" />
+            <path d="M800 595 C865 595, 865 175, 930 175" />
+            <path d="M800 595 C865 595, 865 385, 930 385" />
+            <path d="M800 175 C865 175, 865 780, 930 780" />
+            <path d="M800 385 C865 385, 865 780, 930 780" />
+            <path d="M150 780 C330 780, 330 780, 510 780" />
+            <path d="M510 780 C695 780, 695 780, 930 780" stroke="#a78bfa" />
+          </g>
+        </svg>
+
+        <div class="node active" style="left: 28px; top: 76px;" data-node="routes">
+          <small>Routes</small>
+          <h3>Pages & navigation</h3>
+          <p>Login, dashboard, guests, nodes, backups and create flows are file-based TanStack routes.</p>
+        </div>
+
+        <div class="node" style="left: 28px; top: 270px;" data-node="widgets">
+          <small>UI widgets</small>
+          <h3>Operational screens</h3>
+          <p>Tables, charts, backup views and create forms are composed from shadcn UI + custom Proxmox widgets.</p>
+        </div>
+
+        <div class="node" style="left: 28px; top: 465px;" data-node="console-ui">
+          <small>Interactive console</small>
+          <h3>xterm.js terminal</h3>
+          <p>The browser opens a live terminal for node shells and guest consoles through a websocket flow.</p>
+        </div>
+
+        <div class="node" style="left: 285px; top: 76px;" data-node="auth">
+          <small>Client state</small>
+          <h3>AuthProvider + ticket storage</h3>
+          <p>Proxmox tickets live in localStorage, restore on load, and refresh every hour.</p>
+        </div>
+
+        <div class="node" style="left: 545px; top: 76px;" data-node="client">
+          <small>API layer</small>
+          <h3>Browser Proxmox client</h3>
+          <p>Most actions call <code>/api2/json</code> directly from the browser with ticket auth and CSRF token.</p>
+        </div>
+
+        <div class="node" style="left: 545px; top: 286px;" data-node="serverfn">
+          <small>Server function</small>
+          <h3>termproxy POST relay</h3>
+          <p>A TanStack server function is used where the browser cannot safely send the needed cookie/referer combo.</p>
+        </div>
+
+        <div class="node" style="left: 545px; top: 496px;" data-node="ssr">
+          <small>Server runtime</small>
+          <h3>Custom SSR + console proxy</h3>
+          <p><code>src/server.ts</code> wraps TanStack Start, normalizes SSR failures and intercepts console websocket requests.</p>
+        </div>
+
+        <div class="node" style="left: 785px; top: 76px;" data-node="proxmox">
+          <small>External system</small>
+          <h3>Proxmox VE API</h3>
+          <p>Cluster resources, guests, node status, backups and create actions come from the Proxmox API.</p>
+        </div>
+
+        <div class="node" style="left: 785px; top: 286px;" data-node="websocket">
+          <small>Realtime channel</small>
+          <h3>vncwebsocket / console stream</h3>
+          <p>After termproxy returns a ticket + port, the UI upgrades to a websocket stream for the shell.</p>
+        </div>
+
+        <div class="node" style="left: 28px; top: 716px;" data-node="frontend-runtime">
+          <small>Runtime</small>
+          <h3>Vite dev-style app container</h3>
+          <p>The container runs <code>npm run start</code> → <code>vite dev --host 0.0.0.0 --port 8080</code>.</p>
+        </div>
+
+        <div class="node" style="left: 400px; top: 716px;" data-node="docker">
+          <small>Packaging</small>
+          <h3>Docker + Compose</h3>
+          <p>Node 22 image, npm ci, expose port 8080, healthcheck and optional GHCR deployment.</p>
+        </div>
+
+        <div class="node" style="left: 785px; top: 716px;" data-node="edge">
+          <small>Edge constraints</small>
+          <h3>Cloudflare / CORS / TLS</h3>
+          <p>The app expects a clean HTTPS origin and often relies on Cloudflare worker behavior for CORS + websocket compatibility.</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="right">
+      <div class="summary">
+        <h2>What this repo is, structurally</h2>
+        <ul>
+          <li><strong>Mostly a browser app</strong>: pages fetch Proxmox data with React Query from the client side.</li>
+          <li><strong>Authentication model</strong>: login returns a Proxmox ticket, stored locally in the browser, then reused and refreshed.</li>
+          <li><strong>Important exception</strong>: console access needs server-side help for <code>termproxy</code> and websocket upgrade handling.</li>
+          <li><strong>Deployment shape</strong>: simple Docker container on port 8080, commonly placed behind Cloudflare.</li>
+          <li><strong>Main risk area</strong>: auth/cookie/CORS/websocket interplay rather than complex backend business logic.</li>
+        </ul>
+      </div>
+
+      <div class="details" style="margin-top: 16px;" id="details">
+        <h2>Pages & navigation</h2>
+        <div class="meta">
+          <span class="pill">src/routes/*</span>
+          <span class="pill">src/components/app-sidebar.tsx</span>
+          <span class="pill">src/router.tsx</span>
+        </div>
+        <p>The application is route-driven. The authenticated shell protects most pages and redirects anonymous users to <code>/login</code>.</p>
+        <ul>
+          <li><strong>Login</strong>: collects Proxmox base URL, user, realm and password, with optional 2FA.</li>
+          <li><strong>Dashboard</strong>: cluster summary from <code>listNodes</code> and <code>listAllGuests</code>.</li>
+          <li><strong>Guests / Nodes</strong>: details, actions, monitoring, console and backups.</li>
+          <li><strong>Create</strong>: QEMU and LXC creation flows assembled from Proxmox form payloads.</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>Fast reading:</strong> if you want to understand this codebase quickly, start with <code>src/lib/proxmox/client.ts</code>, then the authenticated routes, then the console proxy pieces.
+      </div>
+
+      <div class="footer">
+        Generated from repo inspection. Open this file locally in any browser.
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const data = {
+      routes: {
+        title: 'Pages & navigation',
+        files: ['src/routes/login.tsx', 'src/routes/_authenticated.tsx', 'src/routes/_authenticated/*.tsx', 'src/components/app-sidebar.tsx'],
+        text: 'The UI is organized around TanStack file-based routes. The authenticated layout waits for ticket restoration, redirects to /login when needed, and wraps all core pages in the sidebar shell.',
+        bullets: [
+          'Dashboard aggregates cluster-level metrics with React Query polling.',
+          'Guests and nodes split into tabs: overview, monitoring, console, backups.',
+          'Create route builds Proxmox payloads for QEMU and LXC creation.',
+        ]
+      },
+      widgets: {
+        title: 'Operational screens',
+        files: ['src/components/proxmox/*', 'src/components/ui/*'],
+        text: 'Most product value lives in operational widgets: guest backup management, node backup jobs, RRD charts and the create-machine forms.',
+        bullets: [
+          'shadcn/ui gives the shell primitives.',
+          'Custom Proxmox components bind those primitives to API data.',
+          'Charts use Recharts fed by Proxmox RRD endpoints.',
+        ]
+      },
+      'console-ui': {
+        title: 'xterm.js terminal',
+        files: ['src/components/proxmox/console-terminal.tsx'],
+        text: 'The terminal widget requests proxy metadata, opens a websocket, sends the login line expected by Proxmox, then forwards keystrokes using the Proxmox xterm framing.',
+        bullets: [
+          'Guests use openTermProxy().',
+          'Node shell uses openNodeTermProxy().',
+          'For QEMU, serial0: socket may need to be enabled first.',
+        ]
+      },
+      auth: {
+        title: 'AuthProvider + ticket storage',
+        files: ['src/lib/proxmox/auth-context.tsx'],
+        text: 'Authentication is entirely Proxmox-based. The app stores the returned ticket in localStorage, restores it on load and refreshes it approximately every hour.',
+        bullets: [
+          'Supports TOTP and recovery-code flow.',
+          'No dedicated app backend session layer exists.',
+          'Local browser state is central to the UX.',
+        ]
+      },
+      client: {
+        title: 'Browser Proxmox client',
+        files: ['src/lib/proxmox/client.ts'],
+        text: 'This is the core integration file. It implements login, ticket refresh, generic API access, typed helpers for nodes/guests/backups and console bootstrap helpers.',
+        bullets: [
+          'Most API calls go directly from browser to Proxmox over HTTPS.',
+          'Uses Authorization header with PVEAuthCookie payload because JS cannot set Cookie directly.',
+          'Adds CSRFPreventionToken on non-GET requests.',
+        ]
+      },
+      serverfn: {
+        title: 'termproxy POST relay',
+        files: ['src/lib/proxmox/proxy.functions.ts'],
+        text: 'The browser cannot reproduce every header/cookie constraint needed for termproxy. A TanStack createServerFn bridge performs the POST server-side for console bootstrap.',
+        bullets: [
+          'Strict Zod validation narrows allowed proxy paths.',
+          'Sets Cookie, CSRF token and optional Referer before calling Proxmox.',
+          'Returns the port/ticket payload needed to open the websocket console.',
+        ]
+      },
+      ssr: {
+        title: 'Custom SSR + console proxy',
+        files: ['src/server.ts', 'src/lib/proxmox/console-proxy.server.ts', 'src/start.ts'],
+        text: 'This repo keeps a thin server wrapper around TanStack Start. It catches SSR failures more cleanly and intercepts /api/proxmox/console websocket requests for proxied shell access.',
+        bullets: [
+          'Normalizes swallowed h3 SSR errors into branded error pages.',
+          'Detects websocket console requests before forwarding to the default server entry.',
+          'Acts more like a compatibility layer than a full backend domain service.',
+        ]
+      },
+      proxmox: {
+        title: 'Proxmox VE API',
+        files: ['external'],
+        text: 'The app is tightly coupled to Proxmox API concepts: nodes, qemu, lxc, cluster resources, backup jobs, termproxy and vncwebsocket.',
+        bullets: [
+          'The product logic is basically a thin Proxmox control surface.',
+          'Route features map almost one-to-one to Proxmox endpoints.',
+          'Permission checks also come from the Proxmox API.',
+        ]
+      },
+      websocket: {
+        title: 'vncwebsocket / console stream',
+        files: ['src/components/proxmox/console-terminal.tsx', 'src/lib/proxmox/console-proxy.server.ts'],
+        text: 'Console access is a two-step process: termproxy POST first, then websocket connection with vncticket/port and auth cookie handling.',
+        bullets: [
+          'This is the most infrastructure-sensitive feature in the app.',
+          'Cloudflare and reverse proxies must preserve websocket upgrades.',
+          'Authentication details in query/cookie handling are critical here.',
+        ]
+      },
+      'frontend-runtime': {
+        title: 'Vite dev-style app container',
+        files: ['package.json', 'Dockerfile'],
+        text: 'The current deployment path intentionally runs the app with vite dev on port 8080 rather than a hardened standalone SSR runtime.',
+        bullets: [
+          'Simple to ship, but not the most production-opinionated shape.',
+          'README calls this out as the validated path.',
+          'Important when reasoning about allowedHosts and runtime behavior.',
+        ]
+      },
+      docker: {
+        title: 'Docker + Compose',
+        files: ['Dockerfile', 'docker-compose.yml'],
+        text: 'Packaging is intentionally simple: Node 22 base image, npm ci, copy source, expose 8080 and run npm start. Compose adds healthcheck and optional GHCR image usage.',
+        bullets: [
+          'Good for straightforward self-hosting.',
+          'No separate DB, cache or queue service exists in the repo.',
+          'Infrastructure complexity mostly comes from the external Proxmox + Cloudflare side.',
+        ]
+      },
+      edge: {
+        title: 'Cloudflare / CORS / TLS',
+        files: ['README.md', 'vite.config.ts'],
+        text: 'The repo documentation makes it clear that the hard part is safe browser reachability to Proxmox: HTTPS trust, CORS headers, cookie rewriting and websocket support.',
+        bullets: [
+          'allowedHosts must include the public app hostname.',
+          'Cloudflare worker may be needed on /api2/* to fix CORS and websocket auth behavior.',
+          'This explains many login and console issues faster than reading UI code alone.',
+        ]
+      }
+    };
+
+    const details = document.getElementById('details');
+    const nodes = document.querySelectorAll('.node');
+    function render(key) {
+      const item = data[key];
+      nodes.forEach(n => n.classList.toggle('active', n.dataset.node === key));
+      details.innerHTML = `
+        <h2>${item.title}</h2>
+        <div class="meta">${item.files.map(f => `<span class="pill">${f}</span>`).join('')}</div>
+        <p>${item.text}</p>
+        <ul>${item.bullets.map(b => `<li>${b}</li>`).join('')}</ul>
+      `;
+    }
+    nodes.forEach(node => node.addEventListener('click', () => render(node.dataset.node)));
+    render('routes');
+  </script>
+</body>
+</html>
