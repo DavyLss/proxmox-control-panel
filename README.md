@@ -73,21 +73,85 @@ What this interface offers :
 
 ![Backups](docs/images/backups.jpg)
 
-### Interactive architecture map
+### Architecture map
 
-Open the rendered interactive map here:
+```mermaid
+flowchart LR
+  %% Layers
+  subgraph UI["UI / Navigation"]
+    LOGIN["Login page<br/>credentials + 2FA"]
+    DASH["Dashboard<br/>cluster overview"]
+    GUESTS["Guests pages<br/>inventory + actions"]
+    NODES["Nodes pages<br/>status + shell"]
+    CREATE["Create workflow<br/>QEMU / LXC forms"]
+    BACKUPS["Backups pages<br/>jobs + restore context"]
+    CONSOLEUI["ConsoleTerminal<br/>xterm.js frontend"]
+  end
 
-- **Live preview:** https://proxmox-control-panel.lassechere.fr/architecture-map.html
-- **App-served file:** [`public/architecture-map.html`](public/architecture-map.html)
-- **Source file:** [`docs/architecture-map.html`](docs/architecture-map.html)
+  subgraph APP["App State / Client Runtime"]
+    AUTH["AuthProvider<br/>ticket restore + refresh"]
+    QUERY["React Query<br/>polling + caching"]
+    ROUTER["TanStack Router<br/>authenticated layout"]
+  end
 
-It gives a clickable overview of:
+  subgraph API["Proxmox Integration Layer"]
+    CLIENT["client.ts<br/>typed Proxmox API helpers"]
+    PROXYFN["proxy.functions.ts<br/>termproxy POST relay"]
+    SSR["server.ts<br/>SSR wrapper + error handling"]
+    WSPROXY["console-proxy.server.ts<br/>websocket upgrade path"]
+  end
 
-- routes and navigation
-- auth and ticket lifecycle
-- Proxmox API integration
-- console / websocket flow
-- Docker runtime and Cloudflare edge constraints
+  subgraph EXT["External Services"]
+    PVE["Proxmox VE API<br/>nodes / qemu / lxc / backup"]
+    WS["vncwebsocket<br/>live console stream"]
+    EDGE["HTTPS / Cloudflare / CORS<br/>allowedHosts + websocket passthrough"]
+    DOCKER["Docker / GHCR / deploy workflow"]
+  end
+
+  LOGIN --> AUTH
+  DASH --> QUERY
+  GUESTS --> QUERY
+  NODES --> QUERY
+  CREATE --> QUERY
+  BACKUPS --> QUERY
+  CONSOLEUI --> AUTH
+  ROUTER --> LOGIN
+  ROUTER --> DASH
+  ROUTER --> GUESTS
+  ROUTER --> NODES
+  ROUTER --> CREATE
+  ROUTER --> BACKUPS
+  AUTH --> CLIENT
+  QUERY --> CLIENT
+  CONSOLEUI --> PROXYFN
+  CONSOLEUI --> WSPROXY
+  CLIENT --> PVE
+  PROXYFN --> PVE
+  SSR --> WSPROXY
+  WSPROXY --> WS
+  PVE --> WS
+  CLIENT -. browser constraints .-> EDGE
+  WSPROXY -. websocket compatibility .-> EDGE
+  DOCKER --> SSR
+
+  classDef ui fill:#dbeafe,stroke:#2563eb,color:#0f172a,stroke-width:1.5px;
+  classDef app fill:#e9d5ff,stroke:#7c3aed,color:#111827,stroke-width:1.5px;
+  classDef api fill:#ccfbf1,stroke:#0f766e,color:#0f172a,stroke-width:1.5px;
+  classDef ext fill:#fef3c7,stroke:#d97706,color:#111827,stroke-width:1.5px;
+
+  class LOGIN,DASH,GUESTS,NODES,CREATE,BACKUPS,CONSOLEUI ui;
+  class AUTH,QUERY,ROUTER app;
+  class CLIENT,PROXYFN,SSR,WSPROXY api;
+  class PVE,WS,EDGE,DOCKER ext;
+```
+
+What this diagram highlights:
+
+- **Browser-first architecture**: most product logic lives in the frontend routes and widgets.
+- **Ticket-based auth**: session state is restored client-side and refreshed periodically.
+- **Thin integration layer**: `client.ts` is the real backbone of the app.
+- **Console is the special case**: `termproxy` + websocket flow needs extra server-side handling.
+- **Infra matters a lot**: Cloudflare, CORS, TLS and websocket passthrough are part of the architecture, not just deployment details.
 
 ---
 
