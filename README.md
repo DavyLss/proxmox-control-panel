@@ -77,7 +77,8 @@ What this interface offers :
 
 Open the rendered interactive map here:
 
-- **Live preview:** https://raw.githack.com/DavyLss/proxmox-control-panel/develop/docs/architecture-map.html
+- **Live preview:** https://proxmox-control-panel.lassechere.fr/architecture-map.html
+- **App-served file:** [`public/architecture-map.html`](public/architecture-map.html)
 - **Source file:** [`docs/architecture-map.html`](docs/architecture-map.html)
 
 It gives a clickable overview of:
