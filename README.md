@@ -73,6 +73,20 @@ What this interface offers :
 
 ![Backups](docs/images/backups.jpg)
 
+### Interactive architecture map
+
+Open the interactive map here:
+
+- [`docs/architecture-map.html`](docs/architecture-map.html)
+
+It gives a clickable overview of:
+
+- routes and navigation
+- auth and ticket lifecycle
+- Proxmox API integration
+- console / websocket flow
+- Docker runtime and Cloudflare edge constraints
+
 ---
 
 ## Quick start
